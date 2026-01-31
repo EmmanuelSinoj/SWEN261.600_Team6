@@ -4,7 +4,8 @@ Group 6
 Leen Malkawi (772000938)
 Saood Al Jerman (771003924)
 Ahmed Abd Elaal (764003579)
-Emmanuel Sinoj Periyil (396004652)
+Emmanuel Sinoj Periyil (396005742)
+Mohammad Hesham (784003683)
 
 Product Vision Statement:
 FOR university students and academic staff
