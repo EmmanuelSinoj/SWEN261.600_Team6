@@ -50,8 +50,8 @@ Ammar Ahmed (377004813)
 
 # Project Management & Collaboration
 
-Trello Board: [SWEN261.600 Team 6](https://trello.com/b/X8e5JQ4G)
-Methodology: Agile / Scrum-inspired workflow
+Trello Board: [SWEN261.600 Team 6](https://trello.com/b/X8e5JQ4G)  
+Methodology: Agile / Scrum-inspired workflow  
 Trello is used to track:
 1.  User stories and requirements
 2.  Sprint tasks and assignments
