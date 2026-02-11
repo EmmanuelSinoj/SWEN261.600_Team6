@@ -7,7 +7,7 @@ WHO need an efficient way to browse courses and manage enrollments
 THE UniEnroll IS a web-based academic platform  
 THAT simplifies course discovery, enrollment, and administration while reducing manual work and improving the academic experience  
 UNLIKE manual registration processes or outdated campus systems  
-OUR PRODUCT is intuitive, reliable, and designed specifically for modern universities  
+OUR PRODUCT is intuitive, reliable, and designed specifically for online universities  
 
 # Key Features
 
