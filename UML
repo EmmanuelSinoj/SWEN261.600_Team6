@@ -1,0 +1,189 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+' ==========================================
+' ENUMS (Domain Values)
+' ==========================================
+enum Role {
+    STUDENT
+    ADMINISTRATOR
+}
+
+enum EnrollmentStatus {
+    ENROLLED
+    WAITLISTED
+    DROPPED
+}
+
+enum DayOfWeek {
+    MON
+    TUE
+    WED
+    THU
+    FRI
+}
+
+enum DeliveryMode {
+    IN_PERSON
+    ONLINE
+    HYBRID
+}
+
+' ==========================================
+' CORE DOMAIN ENTITIES
+' ==========================================
+
+abstract class User {
+    - id : Long
+    - email : String {unique}
+    - passwordHash : String
+    - firstName : String
+    - lastName : String
+    - role : Role
+    - active : boolean
+    --
+    + login() : boolean
+    + logout() : void
+}
+
+class Administrator {
+    - staffId : String {unique}
+    --
+    + createStudentAccount(s : Student) : void
+    + updateStudentAccount(s : Student) : void
+    + deleteStudentAccount(s : Student) : void
+    + createCourse(c : Course) : void
+    + updateCourse(c : Course) : void
+    + deleteCourse(c : Course) : void
+    + createSection(c : Course, s : Section) : void
+    + updateSection(s : Section) : void
+    + deleteSection(s : Section) : void
+}
+
+class Student {
+    - studentId : String {unique}
+    - currentCredits : int
+    - maxCredits : int = 18
+    --
+    + searchCatalog(query : String) : List<Section>
+    + addToCart(s : Section) : void
+    + removeFromCart(s : Section) : void
+    + commitEnrollment() : boolean
+    + dropCourse(e : Enrollment) : void
+    + viewTimetable() : Timetable
+}
+
+class Course {
+    - id : Long
+    - code : String {unique}
+    - title : String
+    - credits : int
+    - level : int
+    - description : String
+    --
+    + getDetails() : String
+}
+
+class Section {
+    - id : Long
+    - crn : String
+    - sectionStartDate : DateTime
+    - sectionEndDate : DateTime
+    - days : List<DayOfWeek>
+    - startTime : Time
+    - endTime : Time
+    - capacity : int
+    - waitlistCapacity : int
+    - enrolledCount : int
+    - room : String
+    - professor : String
+    - mode : DeliveryMode
+    --
+    + isFull() : boolean
+    + getStatus() : String
+    + checkTimeConflict(other : Section) : boolean
+    + processEnrollment() : void
+    + processDrop() : void
+}
+
+class Cart {
+    - id : Long
+    - lastUpdated : DateTime
+    --
+    + calculateTotalCredits() : int
+    + contains(s : Section) : boolean
+    + addSection(s : Section) : void
+    + removeSection(s : Section) : void
+    + clear() : void
+}
+
+class Enrollment {
+    - id : Long
+    - enrollmentDate : Date
+    - status : EnrollmentStatus
+    - grade : String
+    --
+    + updateStatus(newStatus : EnrollmentStatus) : void
+}
+
+' ==========================================
+' RELATIONSHIPS
+' ==========================================
+
+' Inheritance
+User <|-- Student : extends
+User <|-- Administrator : extends
+
+' Student owns a Cart (Composition)
+Student "1" *-- "1" Cart : owns >
+
+' Course defines Sections (Composition)
+Course "1" *-- "0..*" Section : defines >
+
+' Cart contains Sections (Association)
+Cart "0..1" o-- "0..*" Section : contains >
+
+' Student has Enrollments (Association)
+Student "1" -- "0..*" Enrollment : has >
+
+' Enrollment refers to Section (Association)
+Enrollment "0..*" --> "1" Section : refers to >
+
+' ==========================================
+' DOMAIN NOTES
+' ==========================================
+
+note right of User::passwordHash
+  <b>Business Rule BR-001:</b>
+  Passwords must be hashed
+  (never stored in plain text)
+end note
+
+note right of Student::maxCredits
+  <b>Business Rule BR-007:</b>
+  Default max credits = 18
+  Cannot be exceeded per term
+end note
+
+note right of Section::capacity
+  <b>Business Rule BR-002:</b>
+  Section cannot exceed
+  maximum seat capacity
+end note
+
+note right of Section
+  <b>Business Rule BR-008:</b>
+  Time conflicts prevented via
+  checkTimeConflict() method
+end note
+
+note bottom of Enrollment
+  <b>Business Rule BR-003:</b>
+  Student cannot enroll in two
+  sections of same course in same term
+end note
+
+@enduml
