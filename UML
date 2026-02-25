@@ -1,12 +1,6 @@
 @startuml
 
-skinparam classAttributeIconSize 0
-skinparam monochrome true
-skinparam shadowing false
 
-' ==========================================
-' ENUMS (Domain Values)
-' ==========================================
 enum Role {
     STUDENT
     ADMINISTRATOR
@@ -32,9 +26,7 @@ enum DeliveryMode {
     HYBRID
 }
 
-' ==========================================
-' CORE DOMAIN ENTITIES
-' ==========================================
+
 
 abstract class User {
     - id : Long
@@ -55,6 +47,8 @@ class Administrator {
     + createStudentAccount(s : Student) : void
     + updateStudentAccount(s : Student) : void
     + deleteStudentAccount(s : Student) : void
+    + deactivateStudent(s : Student) : void
+    + activateStudent(s : Student) : void
     + createCourse(c : Course) : void
     + updateCourse(c : Course) : void
     + deleteCourse(c : Course) : void
@@ -129,9 +123,7 @@ class Enrollment {
     + updateStatus(newStatus : EnrollmentStatus) : void
 }
 
-' ==========================================
-' RELATIONSHIPS
-' ==========================================
+
 
 ' Inheritance
 User <|-- Student : extends
