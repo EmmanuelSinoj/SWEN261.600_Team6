@@ -1,65 +1,127 @@
-# UniEnroll – Academic Course Enrollment Platform
+# UNIENROLL – Academic Course Enrollment Platform
 
-# Product Vision Statement:
+---
 
-FOR university students and academic staff  
-WHO need an efficient way to browse courses and manage enrollments  
-THE UniEnroll IS a web-based academic platform  
-THAT simplifies course discovery, enrollment, and administration while reducing manual work and improving the academic experience  
-UNLIKE manual registration processes or outdated campus systems  
-OUR PRODUCT is intuitive, reliable, and designed specifically for online universities  
+## Team Members
+- Leen Malkawi (ID: 772000938)  
+- Saood Al Jerman (ID: 771003924)  
+- Ahmed Abd Elaal (ID: 764003579)  
+- Emmanuel Sinoj Periyil (ID: 396005742)  
+- Mohammad Hesham (ID: 784003683)  
+- Ammar Ahmed (ID: 377004813)  
 
-# Key Features
+---
+
+## Product Vision Statement
+
+**FOR** university students and academic staff  
+**WHO** need an efficient way to browse courses and manage enrollments  
+**THE UniEnroll** is a web-based academic platform  
+**THAT** simplifies course discovery, enrollment, and administration while reducing manual work and improving the academic experience  
+**UNLIKE** manual registration processes or outdated campus systems  
+**OUR PRODUCT** is intuitive, reliable, and designed specifically for online universities  
+
+---
+
+## Key Features
+
+### Student Capabilities
 
 Students using UniEnroll can:
-1.	View all available courses offered in the current semester.
-2.	Search and filter courses using multiple criteria:  
-    a.	COURSE LEVEL(100, 200, 300)  
-    b.	COURSE CODE (e.g., CSEC, SWEN)  
-    c.	PROFESSOR NAME  
-    d.	Delivery Mode - IN-PERSON OR ONLINE  
-    e.	ENROLLMENT STATUS - AVAILABLE, WAITLIST, FULL)  
-    f.	DAYS & TIMING  
-3.	Add courses to a personal enrolment basket
-4.	Remove courses from the basket at any time before confirmation
-5.	Commit and finalize enrollment
-6.	Have the enrollment basket preserved across logouts and system restarts
 
-# Administrator Capabilities
+- View all available courses offered in the current semester  
+- Search and filter courses using multiple criteria:
+  - Course Level (100, 200, 300)
+  - Course Code (e.g., CSEC, SWEN)
+  - Professor Name
+  - Delivery Mode (In-Person, Online, Hybrid)
+  - Enrollment Status (Available, Waitlist, Full)
+  - Days & Timing
+- Add courses to a personal enrollment basket  
+- Remove courses from the basket before confirmation  
+- Commit and finalize enrollment  
+- Have their enrollment basket preserved across logouts and system restarts  
+
+---
+
+### Administrator Capabilities
 
 Administrators are able to:
-1.	Perform full CRUD operations on courses (Create, Read, Update, Delete)
-2.	Manage system data without accessing or viewing individual student enrollment baskets
-3.	Ensure all unauthorized attempts to access student data are denied
 
-# System Goals
+- Perform full CRUD operations on courses (Create, Read, Update, Delete)  
+- Manage system data without accessing or viewing individual student enrollment baskets  
+- Ensure all unauthorized attempts to access student data are denied  
 
-1.  Reduce manual registration workload
-2.  Provide a clear and user-friendly interface
-3.  Maintain data security and student privacy
-4.  Ensure reliability across academic terms
+---
 
-# Team Members
+## System Goals
 
-Leen Malkawi (772000938)  
-Saood Al Jerman (771003924)  
-Ahmed Abd Elaal (764003579)  
-Emmanuel Sinoj Periyil (396005742)  
-Mohammad Hesham (784003683)  
-Ammar Ahmed (377004813)  
+- Reduce manual registration workload  
+- Provide a clear and user-friendly interface  
+- Maintain data security and student privacy  
+- Ensure reliability across academic terms  
 
-# Project Management & Collaboration
+---
 
-Trello Board: [SWEN261.600 Team 6](https://trello.com/b/X8e5JQ4G)  
-Methodology: Agile / Scrum-inspired workflow  
+## Project Management & Collaboration
+
+**Methodology:** Agile / Scrum-inspired workflow  
+**Tool Used:** Trello  
+
 Trello is used to track:
-1.  User stories and requirements
-2.  Sprint tasks and assignments
-3.  Bug reports and feature requests
-4.  Progress across development iterations
 
-# Data Persistence
+- User stories and requirements  
+- Sprint tasks and assignments  
+- Bug reports and feature requests  
+- Progress across development iterations  
 
-1.	Course catalog and student enrollment data are stored in a database
-2.	Application state is fully restored after logout, browser close, or server restart
-3.	Student enrollment baskets persist until committed
+---
+
+## Data Persistence
+
+- Course catalog and student enrollment data are stored in a database  
+- Application state is fully restored after logout, browser close, or server restart  
+- Student enrollment baskets persist until committed  
+
+---
+
+## Assignment 1 Progress
+
+### Completed:
+- [x] Domain Analysis & Class Diagram  
+- [x] Glossary of Terms  
+- [x] Functional Requirements Document  
+- [x] Traceability Matrix  
+- [x] User Stories Definition (Total: 15 stories)  
+- [x] Sprint 1 Implementation (3 stories completed)  
+
+---
+
+## Sprint 1 Details
+
+**Sprint Goal:**  
+Implement core user functionalities including login, logout and role based redirect functiontionalities. Implement admin functionalities including adding, deleting, updating, activating and deactivating student accounts.
+
+**Duration:**  
+14th February 2026 to 25th February 2026
+
+**Completed Stories:**
+1. US-001: User Login & Role Redirect  
+2. US-002: Role-Based Access Control (RBAC)  
+3. US-003: Manage Student Accounts
+
+---
+
+## Links
+
+- **GitHub Repository:**  
+  https://github.com/EmmanuelSinoj/SWEN261.600_Team6  
+
+- **Trello Board:**  
+  https://trello.com/b/X8e5JQ4G/swen261600team6
+
+- **Functional Requirements:**  
+  https://docs.google.com/document/d/1jg0YROrAA-XOZv-E0-FpQozw2gaLYb8TqP4JL_sXltU  
+
+- **Traceability Matrix:**  
+  https://docs.google.com/spreadsheets/d/1DwKVT0ptUckvCwcQvSxi3y6QgkCcqvNV6qVV8ap2Cvw  
