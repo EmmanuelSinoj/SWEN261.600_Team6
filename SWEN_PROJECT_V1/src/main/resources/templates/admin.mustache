@@ -40,11 +40,8 @@
             backdrop-filter: blur(8px);
             margin-bottom:24px;
         }
-        .brand{
-            font-weight:800;
-            font-size:18px;
-            letter-spacing:0.5px;
-        }
+        .brand { font-size: 1.25rem; font-weight: bold; color: var(--text); text-decoration: none; }
+        .brand span { color: var(--accent); }
         .nav-right{
             display:flex;
             align-items:center;
@@ -200,7 +197,7 @@
     {{/errorMessage}}
 
     <div class="nav">
-        <div class="brand">UniEnroll</div>
+        <div class="brand">Uni<span>Enroll</span></div>
         <div class="nav-right">
             <span class="pill">Admin</span>
             <form method="post" action="/logout" style="margin:0">
