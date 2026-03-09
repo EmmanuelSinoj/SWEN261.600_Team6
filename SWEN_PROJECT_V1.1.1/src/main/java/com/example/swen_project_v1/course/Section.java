@@ -43,10 +43,6 @@ public class Section {
     @Column(nullable = false)
     private String professor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DeliveryMode deliveryMode = DeliveryMode.IN_PERSON;
-
     @Column(nullable = false)
     private int enrolledCount = 0;
 
@@ -59,7 +55,6 @@ public class Section {
     public String getRoom() { return room; }
     public int getCapacity() { return capacity; }
     public String getProfessor() { return professor; }
-    public DeliveryMode getDeliveryMode() { return deliveryMode; }
     public int getEnrolledCount() { return enrolledCount; }
 
     public void setId(Long id) { this.id = id; }
@@ -71,30 +66,10 @@ public class Section {
     public void setRoom(String room) { this.room = room; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
     public void setProfessor(String professor) { this.professor = professor; }
-    public void setDeliveryMode(DeliveryMode deliveryMode) { this.deliveryMode = deliveryMode; }
     public void setEnrolledCount(int enrolledCount) { this.enrolledCount = enrolledCount; }
 
-    @Column(nullable = false)
-    private int waitlistCount = 0;
-
-
-    public static final int WAITLIST_CAP = 10;
-
-
-    public int getWaitlistCount() { return waitlistCount; }
-    public void setWaitlistCount(int waitlistCount) { this.waitlistCount = waitlistCount; }
-
-    public boolean isOpen() {
-        return this.enrolledCount < this.capacity;
-    }
-
-
     public boolean isFull() {
-        return this.enrolledCount >= this.capacity && this.waitlistCount >= WAITLIST_CAP;
-    }
-
-    public boolean isWaitlist() {
-        return this.enrolledCount >= this.capacity && this.waitlistCount < WAITLIST_CAP;
+        return enrolledCount >= capacity;
     }
 
     public boolean hasTimeConflict(Section other) {

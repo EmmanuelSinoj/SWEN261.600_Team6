@@ -33,7 +33,6 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
 
-
     public Long getId() { return id; }
     public String getCode() { return code; }
     public String getTitle() { return title; }

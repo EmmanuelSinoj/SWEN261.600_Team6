@@ -2,7 +2,6 @@ package com.example.swen_project_v1.web;
 
 import com.example.swen_project_v1.course.Course;
 import com.example.swen_project_v1.course.DayOfWeek;
-import com.example.swen_project_v1.course.DeliveryMode;
 import com.example.swen_project_v1.course.Section;
 import com.example.swen_project_v1.service.CourseService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -50,7 +49,6 @@ public class CourseAdminController {
         List<Course> courses = courseService.getAllCourses();
         model.addAttribute("courses", courses);
         model.addAttribute("days", Arrays.asList(DayOfWeek.values()));
-        model.addAttribute("deliveryModes", Arrays.asList(DeliveryMode.values()));
         return "admin-courses";
     }
 
@@ -128,7 +126,6 @@ public class CourseAdminController {
                                 @RequestParam String room,
                                 @RequestParam int capacity,
                                 @RequestParam String professor,
-                                @RequestParam(required = false, defaultValue = "IN_PERSON") DeliveryMode deliveryMode,
                                 RedirectAttributes redirectAttributes) {
         try {
             // Check if days is null or empty
@@ -136,7 +133,7 @@ public class CourseAdminController {
                 throw new IllegalArgumentException("no_days:Please select at least one day for the section.");
             }
 
-            courseService.createSection(courseId, crn, days, startTime, endTime, room, capacity, professor, deliveryMode);
+            courseService.createSection(courseId, crn, days, startTime, endTime, room, capacity, professor);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Section " + crn + " scheduled successfully!");
         } catch (IllegalArgumentException e) {
@@ -150,7 +147,6 @@ public class CourseAdminController {
             redirectAttributes.addFlashAttribute("sectionRoom", room);
             redirectAttributes.addFlashAttribute("sectionCapacity", capacity);
             redirectAttributes.addFlashAttribute("sectionProfessor", professor);
-            redirectAttributes.addFlashAttribute("sectionDeliveryMode", deliveryMode);
             redirectAttributes.addFlashAttribute("selectedCourseId", courseId);
         }
         return "redirect:/admin/courses";
@@ -164,7 +160,6 @@ public class CourseAdminController {
                                 @RequestParam String room,
                                 @RequestParam int capacity,
                                 @RequestParam String professor,
-                                @RequestParam(required = false, defaultValue = "IN_PERSON") DeliveryMode deliveryMode,
                                 RedirectAttributes redirectAttributes) {
         try {
             // Check if days is null or empty
@@ -172,7 +167,7 @@ public class CourseAdminController {
                 throw new IllegalArgumentException("no_days:Please select at least one day for the section.");
             }
 
-            courseService.updateSection(id, days, startTime, endTime, room, capacity, professor, deliveryMode);
+            courseService.updateSection(id, days, startTime, endTime, room, capacity, professor);
             redirectAttributes.addFlashAttribute("successMessage", "Section updated successfully!");
         } catch (IllegalArgumentException e) {
             String[] errorParts = e.getMessage().split(":", 2);

@@ -152,33 +152,30 @@
             accent-color:var(--accent);
         }
 
-        .course-selector{
-            margin-bottom:24px;
+        .table-wrap{overflow-x:auto}
+        .table{
+            width:100%;
+            border-collapse: separate;
+            border-spacing:0;
+            font-size:14px;
         }
-        .course-selector select{
-            font-size:16px;
-            padding:14px;
-        }
-        .course-display{
-            display:none;
-        }
-        .course-display.active{
-            display:block;
-        }
-        .course-header{
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            gap:16px;
-            margin-bottom:20px;
-            padding-bottom:20px;
+        .table th{
+            padding:12px;
+            color:var(--muted);
+            font-weight:600;
+            text-align:left;
             border-bottom:1px solid var(--border);
+            white-space:nowrap;
         }
-        .course-code{font-family:monospace;font-weight:600;color:var(--accent);font-size:18px}
-        .course-title{font-weight:700;font-size:20px;margin:4px 0}
-        .course-meta{font-size:13px;color:var(--muted)}
-        .credit-range{font-size:12px;color:var(--muted);margin-left:8px}
-
+        .table td{
+            padding:14px 12px;
+            border-bottom:1px solid var(--border);
+            vertical-align:middle;
+        }
+        .table tr:last-child td{border-bottom:none}
+        .course-code{font-family:monospace;font-weight:600;color:var(--accent)}
+        .course-title{font-weight:600}
+        .course-meta{font-size:12px;color:var(--muted);margin-top:2px}
         .badge{
             display:inline-block;
             padding:4px 10px;
@@ -193,17 +190,18 @@
 
         .section-list{
             margin-top:16px;
+            padding-top:16px;
+            border-top:1px solid var(--border);
         }
         .section-item{
             display:grid;
             grid-template-columns: auto 1fr auto auto;
             gap:16px;
             align-items:center;
-            padding:14px;
+            padding:12px;
             background:rgba(0,0,0,.15);
             border-radius:10px;
-            margin-bottom:10px;
-            border:1px solid var(--border);
+            margin-bottom:8px;
         }
         .section-time{
             font-family:monospace;
@@ -212,7 +210,6 @@
         }
         .section-details{
             font-size:13px;
-            line-height:1.5;
         }
         .section-details strong{
             color:var(--text);
@@ -261,6 +258,11 @@
             border-color:var(--accent);
         }
         .hidden{display:none}
+        .credit-range{
+            font-size:12px;
+            color:var(--muted);
+            margin-left:8px;
+        }
     </style>
 </head>
 <body>
@@ -305,15 +307,8 @@
         </div>
         <form method="post" action="/admin/courses/create">
             <div class="form-grid">
-                <div>
-                    <input class="input" name="code" placeholder="Course Code (e.g., SWEN-261)" required
-                           pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
-                           title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)"
-                           value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
-                    <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
-                        Format: 4 letters + 3 digits (e.g. SWEN-261). Max: 699.
-                    </div>
-                </div>
+                <input class="input" name="code" placeholder="Course Code (e.g., CS101)" required
+                       value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
                 <input class="input" name="title" placeholder="Course Title" required
                        value="{{#courseTitle}}{{courseTitle}}{{/courseTitle}}" />
                 <input class="input" name="credits" type="number" placeholder="Credits (1-4)" min="1" max="4" required
@@ -345,12 +340,6 @@
                 </select>
                 <input class="input" name="crn" placeholder="CRN (e.g., 12345)" required
                        value="{{#sectionCrn}}{{sectionCrn}}{{/sectionCrn}}" />
-                <select name="deliveryMode" required>
-                    <option value="">Delivery Mode...</option>
-                    {{#deliveryModes}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/deliveryModes}}
-                </select>
                 <div class="checkbox-group" style="grid-column:span 3;">
                     <span style="color:var(--muted);font-size:12px;">Days (select at least one):</span>
                     {{#days}}
@@ -377,7 +366,7 @@
         </form>
     </div>
 
-    <!-- Course Catalog with Dropdown Selector -->
+    <!-- Course List -->
     <div class="card">
         <div class="card-header">
             <div>
@@ -386,36 +375,18 @@
             </div>
         </div>
 
-        {{^courses}}
-            <div class="empty-state">
-                <div style="font-size:48px;margin-bottom:16px;">📚</div>
-                <div>No courses in the catalog yet.</div>
-                <div style="font-size:13px;margin-top:8px;">Create a course above to get started.</div>
-            </div>
-        {{/courses}}
-
-        <div class="course-selector">
-            <select id="courseSelect" onchange="showCourse(this.value)">
-                <option value="">-- Select a course to view sections --</option>
-                {{#courses}}
-                    <option value="course-{{id}}">{{code}} - {{title}} ({{sections.size}} sections)</option>
-                {{/courses}}
-            </select>
-        </div>
-
-        <!-- Course details (hidden by default, shown via JS) -->
         {{#courses}}
-            <div id="course-{{id}}" class="course-display">
-                <div class="course-header">
+            <div style="border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
                     <div>
                         <span class="course-code">{{code}}</span>
                         <span class="credit-range">(Credits: {{minCredits}}-{{maxCredits}}, Default: {{credits}})</span>
                         <div class="course-title">{{title}}</div>
-                        <div class="course-meta">{{sections.size}} section(s) scheduled</div>
+                        <div class="course-meta">{{sections.size}} section(s)</div>
                         {{#description}}<div style="margin-top:8px;font-size:13px;color:var(--muted);">{{description}}</div>{{/description}}
                     </div>
                     <div class="actions">
-                        <button class="btn secondary small" onclick="toggleEditCourse('{{id}}')">Edit Course</button>
+                        <button class="btn secondary small" onclick="toggleEditCourse('{{id}}')">Edit</button>
                         <form method="post" action="/admin/courses/delete" style="margin:0" onsubmit="return confirm('Delete course {{code}}? This cannot be undone if sections exist.');">
                             <input type="hidden" name="id" value="{{id}}" />
                             <button class="btn danger small" type="submit">Delete</button>
@@ -424,18 +395,11 @@
                 </div>
 
                 <!-- Edit Course Form (Hidden) -->
-                <div id="edit-course-{{id}}" style="display:none;margin-bottom:20px;padding:16px;background:rgba(0,0,0,.15);border-radius:10px;">
+                <div id="edit-course-{{id}}" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
                     <form method="post" action="/admin/courses/update">
                         <input type="hidden" name="id" value="{{id}}" />
                         <div class="form-grid">
-                            <div>
-                                <input class="input" name="code" value="{{code}}" required
-                                       pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
-                                       title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)" />
-                                <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
-                                    Format: 4 letters + 3 digits. Max: 699.
-                                </div>
-                            </div>
+                            <input class="input" name="code" value="{{code}}" required />
                             <input class="input" name="title" value="{{title}}" required />
                             <input class="input" name="credits" type="number" value="{{credits}}" min="1" max="4" required />
                             <input class="input" name="minCredits" type="number" value="{{minCredits}}" min="1" max="4" required />
@@ -456,8 +420,10 @@
                         <div class="section-item">
                             <span class="badge">CRN: {{crn}}</span>
                             <div class="section-details">
-                                <div><span class="section-time">{{daysString}}</span> • {{startTime}} - {{endTime}}</div>
-                                <div>Room {{room}} • Prof. {{professor}} • <strong>{{enrolledCount}}/{{capacity}}</strong> enrolled • {{deliveryMode}}</div>
+                                <span class="section-time">{{daysString}} {{startTime}} - {{endTime}}</span> •
+                                Room {{room}} •
+                                Prof. {{professor}} •
+                                <strong>{{enrolledCount}}/{{capacity}}</strong> enrolled
                             </div>
                             <button class="btn secondary small" onclick="toggleEditSection('{{id}}')">Edit</button>
                             <form method="post" action="/admin/sections/delete" style="margin:0" onsubmit="return confirm('Delete section {{crn}}?');">
@@ -467,25 +433,26 @@
                         </div>
 
                         <!-- Edit Section Form (Hidden) -->
-                        <div id="edit-section-{{id}}" style="display:none;margin:10px 0 16px;padding:16px;background:rgba(0,0,0,.2);border-radius:10px;">
+                        <div id="edit-section-{{id}}" style="display:none;margin:8px 0 16px;padding:16px;background:rgba(0,0,0,.2);border-radius:10px;">
                             <form method="post" action="/admin/sections/update">
                                 <input type="hidden" name="id" value="{{id}}" />
                                 <div class="form-grid">
-                                    <select name="deliveryMode" required style="grid-column:span 3;">
-                                        {{#deliveryModes}}
-                                            <option value="{{.}}">{{.}}</option>
-                                        {{/deliveryModes}}
-                                    </select>
-                                    <div class="checkbox-group" style="grid-column:span 3;" id="edit-days-{{id}}">
+                                    <div class="checkbox-group" style="grid-column:span 3;">
                                         <span style="color:var(--muted);font-size:12px;">Days (select at least one):</span>
                                         {{#days}}
-                                            <span class="selected-day" style="display:none;">{{.}}</span>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" name="days" value="{{.}}" checked />
+                                                <span>{{.}}</span>
+                                            </label>
                                         {{/days}}
-                                        <label class="checkbox-item"><input type="checkbox" name="days" value="MON" /><span>MON</span></label>
-                                        <label class="checkbox-item"><input type="checkbox" name="days" value="TUE" /><span>TUE</span></label>
-                                        <label class="checkbox-item"><input type="checkbox" name="days" value="WED" /><span>WED</span></label>
-                                        <label class="checkbox-item"><input type="checkbox" name="days" value="THU" /><span>THU</span></label>
-                                        <label class="checkbox-item"><input type="checkbox" name="days" value="FRI" /><span>FRI</span></label>
+                                        {{#allDays}}
+                                            {{^selected}}
+                                                <label class="checkbox-item">
+                                                    <input type="checkbox" name="days" value="{{day}}" />
+                                                    <span>{{day}}</span>
+                                                </label>
+                                            {{/selected}}
+                                        {{/allDays}}
                                     </div>
                                     <input class="input" name="startTime" type="time" value="{{startTime}}" required />
                                     <input class="input" name="endTime" type="time" value="{{endTime}}" required />
@@ -506,25 +473,17 @@
                 </div>
             </div>
         {{/courses}}
+        {{^courses}}
+            <div class="empty-state">
+                <div style="font-size:48px;margin-bottom:16px;">📚</div>
+                <div>No courses in the catalog yet.</div>
+                <div style="font-size:13px;margin-top:8px;">Create a course above to get started.</div>
+            </div>
+        {{/courses}}
     </div>
 </div>
 
 <script>
-    function showCourse(courseId) {
-        // Hide all course displays
-        document.querySelectorAll('.course-display').forEach(el => {
-            el.classList.remove('active');
-        });
-
-        // Show selected course if any
-        if (courseId) {
-            const selected = document.getElementById(courseId);
-            if (selected) {
-                selected.classList.add('active');
-            }
-        }
-    }
-
     function toggleEditCourse(id) {
         const el = document.getElementById('edit-course-' + id);
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
@@ -532,17 +491,7 @@
 
     function toggleEditSection(id) {
         const el = document.getElementById('edit-section-' + id);
-        const isOpening = el.style.display === 'none';
-        el.style.display = isOpening ? 'block' : 'none';
-
-        // Check the appropriate day boxes when opening
-        if (isOpening) {
-            const container = document.getElementById('edit-days-' + id);
-            const selectedDays = Array.from(container.querySelectorAll('.selected-day')).map(s => s.textContent.trim());
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                cb.checked = selectedDays.includes(cb.value);
-            });
-        }
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 </script>
 </body>
