@@ -1,0 +1,535 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>UniEnroll • Course Management</title>
+    <style>
+        :root{
+            --bg:#0b1220;
+            --card:#111a2e;
+            --text:#e9eefc;
+            --muted:#a9b4d0;
+            --accent:#7c5cff;
+            --accent2:#22c55e;
+            --danger:#ef4444;
+            --border:rgba(255,255,255,.10);
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: radial-gradient(1000px 600px at 20% 10%, rgba(124,92,255,.35), transparent 60%),
+            radial-gradient(900px 550px at 85% 25%, rgba(34,197,94,.25), transparent 55%),
+            var(--bg);
+            color:var(--text);
+            min-height:100vh;
+        }
+        .container{
+            max-width:1200px;
+            margin:0 auto;
+            padding:24px;
+        }
+        .nav{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 24px;
+            border:1px solid var(--border);
+            border-radius:16px;
+            background: rgba(17,26,46,.7);
+            backdrop-filter: blur(8px);
+            margin-bottom:24px;
+        }
+        .brand { font-size: 1.25rem; font-weight: bold; color: var(--text); text-decoration: none; }
+        .brand span { color: var(--accent); }
+        .nav-right{
+            display:flex;
+            align-items:center;
+            gap:16px;
+        }
+        .pill{
+            padding:6px 14px;
+            border-radius:999px;
+            border:1px solid var(--border);
+            color:var(--accent);
+            font-size:12px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+        .btn{
+            padding:10px 18px;
+            border:1px solid transparent;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:600;
+            font-size:13px;
+            background: linear-gradient(90deg, var(--accent), #3b82f6);
+            color:white;
+            transition:opacity 0.2s;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn:hover{opacity:0.9}
+        .btn.secondary{
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text);
+        }
+        .btn.danger{
+            background: rgba(239,68,68,.15);
+            border-color: rgba(239,68,68,.35);
+            color: #fecaca;
+        }
+        .btn.small{padding:8px 14px;font-size:12px}
+        .card{
+            border:1px solid var(--border);
+            border-radius:20px;
+            background: rgba(17,26,46,.75);
+            backdrop-filter: blur(8px);
+            padding:28px;
+            margin-bottom:24px;
+        }
+        .card-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:24px;
+        }
+        .h1{font-size:20px;margin:0;font-weight:700}
+        .h2{font-size:16px;margin:0 0 16px;font-weight:700;color:var(--muted)}
+        .sub{color:var(--muted);margin:6px 0 0;font-size:13px}
+
+        .form-grid{
+            display:grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap:12px;
+        }
+        @media(max-width: 960px){
+            .form-grid{grid-template-columns:1fr 1fr}
+        }
+        @media(max-width: 640px){
+            .form-grid{grid-template-columns:1fr}
+        }
+        .input, select{
+            width:100%;
+            padding:12px 14px;
+            border-radius:10px;
+            border:1px solid var(--border);
+            background: rgba(0,0,0,.25);
+            color:var(--text);
+            outline:none;
+            font-size:14px;
+        }
+        .input:focus, select:focus{border-color: var(--accent)}
+        select option { background: var(--card); color: var(--text); }
+        .form-actions{
+            display:flex;
+            gap:10px;
+            margin-top:16px;
+            padding-top:16px;
+            border-top:1px solid var(--border);
+        }
+        .checkbox-group{
+            display:flex;
+            gap:16px;
+            flex-wrap:wrap;
+            padding:12px;
+            background:rgba(0,0,0,.15);
+            border-radius:10px;
+            border:1px solid var(--border);
+        }
+        .checkbox-item{
+            display:flex;
+            align-items:center;
+            gap:6px;
+        }
+        .checkbox-item input[type="checkbox"]{
+            width:18px;
+            height:18px;
+            accent-color:var(--accent);
+        }
+
+        .course-selector{
+            margin-bottom:24px;
+        }
+        .course-selector select{
+            font-size:16px;
+            padding:14px;
+        }
+        .course-display{
+            display:none;
+        }
+        .course-display.active{
+            display:block;
+        }
+        .course-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:16px;
+            margin-bottom:20px;
+            padding-bottom:20px;
+            border-bottom:1px solid var(--border);
+        }
+        .course-code{font-family:monospace;font-weight:600;color:var(--accent);font-size:18px}
+        .course-title{font-weight:700;font-size:20px;margin:4px 0}
+        .course-meta{font-size:13px;color:var(--muted)}
+        .credit-range{font-size:12px;color:var(--muted);margin-left:8px}
+
+        .badge{
+            display:inline-block;
+            padding:4px 10px;
+            border-radius:999px;
+            border:1px solid var(--border);
+            font-size:11px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+        .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+        .section-list{
+            margin-top:16px;
+        }
+        .section-item{
+            display:grid;
+            grid-template-columns: auto 1fr auto auto;
+            gap:16px;
+            align-items:center;
+            padding:14px;
+            background:rgba(0,0,0,.15);
+            border-radius:10px;
+            margin-bottom:10px;
+            border:1px solid var(--border);
+        }
+        .section-time{
+            font-family:monospace;
+            font-size:13px;
+            color:var(--accent);
+        }
+        .section-details{
+            font-size:13px;
+            line-height:1.5;
+        }
+        .section-details strong{
+            color:var(--text);
+        }
+        .empty-state{
+            text-align:center;
+            padding:40px;
+            color:var(--muted);
+        }
+        .alert{
+            padding:14px 18px;
+            border-radius:12px;
+            margin-bottom:16px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .alert.success{
+            border:1px solid rgba(34,197,94,.35);
+            background:rgba(34,197,94,.12);
+            color:#bbf7d0;
+        }
+        .alert.error{
+            border:1px solid rgba(239,68,68,.35);
+            background:rgba(239,68,68,.12);
+            color:#fecaca;
+        }
+        .tabs{
+            display:flex;
+            gap:8px;
+            margin-bottom:24px;
+        }
+        .tab{
+            padding:10px 20px;
+            border-radius:10px;
+            border:1px solid var(--border);
+            background:transparent;
+            color:var(--muted);
+            cursor:pointer;
+            font-weight:600;
+            text-decoration:none;
+        }
+        .tab.active{
+            background:var(--accent);
+            color:white;
+            border-color:var(--accent);
+        }
+        .hidden{display:none}
+    </style>
+</head>
+<body>
+<div class="container">
+    {{#successMessage}}
+        <div class="alert success">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+            {{successMessage}}
+        </div>
+    {{/successMessage}}
+
+    {{#errorMessage}}
+        <div class="alert error">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="9"/><path d="M10 6v4M10 14h.01"/></svg>
+            {{errorMessage}}
+        </div>
+    {{/errorMessage}}
+
+    <div class="nav">
+        <div class="brand">Uni<span>Enroll</span></div>
+        <div class="nav-right">
+            <span class="pill">Admin</span>
+            <a href="/admin" class="btn secondary small">Students</a>
+            <form method="post" action="/logout" style="margin:0">
+                <button class="btn secondary small" type="submit">Sign Out</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a href="/admin" class="tab">Students</a>
+        <a href="/admin/courses" class="tab active">Courses</a>
+    </div>
+
+    <!-- Create Course Panel -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h1 class="h1">Create New Course</h1>
+                <p class="sub">Define a new course for the catalog (Credits: 1-4)</p>
+            </div>
+        </div>
+        <form method="post" action="/admin/courses/create">
+            <div class="form-grid">
+                <input class="input" name="code" placeholder="Course Code (e.g., CS101)" required
+                       value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
+                <input class="input" name="title" placeholder="Course Title" required
+                       value="{{#courseTitle}}{{courseTitle}}{{/courseTitle}}" />
+                <input class="input" name="credits" type="number" placeholder="Credits (1-4)" min="1" max="4" required
+                       value="{{#courseCredits}}{{courseCredits}}{{/courseCredits}}" />
+                <input class="input" name="description" placeholder="Description (optional)" style="grid-column:span 2"
+                       value="{{#courseDescription}}{{courseDescription}}{{/courseDescription}}" />
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit">Create Course</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Create Section Panel -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h1 class="h1">Schedule New Section</h1>
+                <p class="sub">Create a class section for an existing course (Max capacity: 30)</p>
+            </div>
+        </div>
+        <form method="post" action="/admin/sections/create">
+            <div class="form-grid">
+                <select name="courseId" required>
+                    <option value="">Select Course...</option>
+                    {{#courses}}
+                        <option value="{{id}}">{{code}} - {{title}}</option>
+                    {{/courses}}
+                </select>
+                <input class="input" name="crn" placeholder="CRN (e.g., 12345)" required
+                       value="{{#sectionCrn}}{{sectionCrn}}{{/sectionCrn}}" />
+                <select name="deliveryMode" required>
+                    <option value="">Delivery Mode...</option>
+                    {{#deliveryModes}}
+                        <option value="{{.}}">{{.}}</option>
+                    {{/deliveryModes}}
+                </select>
+                <div class="checkbox-group" style="grid-column:span 3;">
+                    <span style="color:var(--muted);font-size:12px;">Days (select at least one):</span>
+                    {{#days}}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="days" value="{{.}}" />
+                            <span>{{.}}</span>
+                        </label>
+                    {{/days}}
+                </div>
+                <input class="input" name="startTime" type="time" required
+                       value="{{#sectionStartTime}}{{sectionStartTime}}{{/sectionStartTime}}" />
+                <input class="input" name="endTime" type="time" required
+                       value="{{#sectionEndTime}}{{sectionEndTime}}{{/sectionEndTime}}" />
+                <input class="input" name="room" placeholder="Room (e.g., Building 101)" required
+                       value="{{#sectionRoom}}{{sectionRoom}}{{/sectionRoom}}" />
+                <input class="input" name="capacity" type="number" placeholder="Capacity (Max 30)" min="1" max="30" required
+                       value="{{#sectionCapacity}}{{sectionCapacity}}{{/sectionCapacity}}" />
+                <input class="input" name="professor" placeholder="Professor Name" required
+                       value="{{#sectionProfessor}}{{sectionProfessor}}{{/sectionProfessor}}" />
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit">Schedule Section</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Course Catalog with Dropdown Selector -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h1 class="h1">Course Catalog</h1>
+                <p class="sub">{{courses.size}} courses available</p>
+            </div>
+        </div>
+
+        {{^courses}}
+            <div class="empty-state">
+                <div style="font-size:48px;margin-bottom:16px;">📚</div>
+                <div>No courses in the catalog yet.</div>
+                <div style="font-size:13px;margin-top:8px;">Create a course above to get started.</div>
+            </div>
+        {{/courses}}
+
+        <div class="course-selector">
+            <select id="courseSelect" onchange="showCourse(this.value)">
+                <option value="">-- Select a course to view sections --</option>
+                {{#courses}}
+                    <option value="course-{{id}}">{{code}} - {{title}} ({{sections.size}} sections)</option>
+                {{/courses}}
+            </select>
+        </div>
+
+        <!-- Course details (hidden by default, shown via JS) -->
+        {{#courses}}
+            <div id="course-{{id}}" class="course-display">
+                <div class="course-header">
+                    <div>
+                        <span class="course-code">{{code}}</span>
+                        <span class="credit-range">(Credits: {{minCredits}}-{{maxCredits}}, Default: {{credits}})</span>
+                        <div class="course-title">{{title}}</div>
+                        <div class="course-meta">{{sections.size}} section(s) scheduled</div>
+                        {{#description}}<div style="margin-top:8px;font-size:13px;color:var(--muted);">{{description}}</div>{{/description}}
+                    </div>
+                    <div class="actions">
+                        <button class="btn secondary small" onclick="toggleEditCourse('{{id}}')">Edit Course</button>
+                        <form method="post" action="/admin/courses/delete" style="margin:0" onsubmit="return confirm('Delete course {{code}}? This cannot be undone if sections exist.');">
+                            <input type="hidden" name="id" value="{{id}}" />
+                            <button class="btn danger small" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit Course Form (Hidden) -->
+                <div id="edit-course-{{id}}" style="display:none;margin-bottom:20px;padding:16px;background:rgba(0,0,0,.15);border-radius:10px;">
+                    <form method="post" action="/admin/courses/update">
+                        <input type="hidden" name="id" value="{{id}}" />
+                        <div class="form-grid">
+                            <input class="input" name="code" value="{{code}}" required />
+                            <input class="input" name="title" value="{{title}}" required />
+                            <input class="input" name="credits" type="number" value="{{credits}}" min="1" max="4" required />
+                            <input class="input" name="minCredits" type="number" value="{{minCredits}}" min="1" max="4" required />
+                            <input class="input" name="maxCredits" type="number" value="{{maxCredits}}" min="1" max="4" required />
+                            <input class="input" name="description" value="{{description}}" placeholder="Description" />
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn secondary small" onclick="toggleEditCourse('{{id}}')">Cancel</button>
+                            <button class="btn small" type="submit">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sections List -->
+                <div class="section-list">
+                    <div class="h2">Scheduled Sections</div>
+                    {{#sections}}
+                        <div class="section-item">
+                            <span class="badge">CRN: {{crn}}</span>
+                            <div class="section-details">
+                                <div><span class="section-time">{{daysString}}</span> • {{startTime}} - {{endTime}}</div>
+                                <div>Room {{room}} • Prof. {{professor}} • <strong>{{enrolledCount}}/{{capacity}}</strong> enrolled • {{deliveryMode}}</div>
+                            </div>
+                            <button class="btn secondary small" onclick="toggleEditSection('{{id}}')">Edit</button>
+                            <form method="post" action="/admin/sections/delete" style="margin:0" onsubmit="return confirm('Delete section {{crn}}?');">
+                                <input type="hidden" name="id" value="{{id}}" />
+                                <button class="btn danger small" type="submit">Delete</button>
+                            </form>
+                        </div>
+
+                        <!-- Edit Section Form (Hidden) -->
+                        <div id="edit-section-{{id}}" style="display:none;margin:10px 0 16px;padding:16px;background:rgba(0,0,0,.2);border-radius:10px;">
+                            <form method="post" action="/admin/sections/update">
+                                <input type="hidden" name="id" value="{{id}}" />
+                                <div class="form-grid">
+                                    <select name="deliveryMode" required style="grid-column:span 3;">
+                                        {{#deliveryModes}}
+                                            <option value="{{.}}">{{.}}</option>
+                                        {{/deliveryModes}}
+                                    </select>
+                                    <div class="checkbox-group" style="grid-column:span 3;" id="edit-days-{{id}}">
+                                        <span style="color:var(--muted);font-size:12px;">Days (select at least one):</span>
+                                        {{#days}}
+                                            <span class="selected-day" style="display:none;">{{.}}</span>
+                                        {{/days}}
+                                        <label class="checkbox-item"><input type="checkbox" name="days" value="MON" /><span>MON</span></label>
+                                        <label class="checkbox-item"><input type="checkbox" name="days" value="TUE" /><span>TUE</span></label>
+                                        <label class="checkbox-item"><input type="checkbox" name="days" value="WED" /><span>WED</span></label>
+                                        <label class="checkbox-item"><input type="checkbox" name="days" value="THU" /><span>THU</span></label>
+                                        <label class="checkbox-item"><input type="checkbox" name="days" value="FRI" /><span>FRI</span></label>
+                                    </div>
+                                    <input class="input" name="startTime" type="time" value="{{startTime}}" required />
+                                    <input class="input" name="endTime" type="time" value="{{endTime}}" required />
+                                    <input class="input" name="room" value="{{room}}" required />
+                                    <input class="input" name="capacity" type="number" value="{{capacity}}" min="1" max="30" required />
+                                    <input class="input" name="professor" value="{{professor}}" required />
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn secondary small" onclick="toggleEditSection('{{id}}')">Cancel</button>
+                                    <button class="btn small" type="submit">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    {{/sections}}
+                    {{^sections}}
+                        <div class="empty-state">No sections scheduled for this course.</div>
+                    {{/sections}}
+                </div>
+            </div>
+        {{/courses}}
+    </div>
+</div>
+
+<script>
+    function showCourse(courseId) {
+        // Hide all course displays
+        document.querySelectorAll('.course-display').forEach(el => {
+            el.classList.remove('active');
+        });
+
+        // Show selected course if any
+        if (courseId) {
+            const selected = document.getElementById(courseId);
+            if (selected) {
+                selected.classList.add('active');
+            }
+        }
+    }
+
+    function toggleEditCourse(id) {
+        const el = document.getElementById('edit-course-' + id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleEditSection(id) {
+        const el = document.getElementById('edit-section-' + id);
+        const isOpening = el.style.display === 'none';
+        el.style.display = isOpening ? 'block' : 'none';
+
+        // Check the appropriate day boxes when opening
+        if (isOpening) {
+            const container = document.getElementById('edit-days-' + id);
+            const selectedDays = Array.from(container.querySelectorAll('.selected-day')).map(s => s.textContent.trim());
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = selectedDays.includes(cb.value);
+            });
+        }
+    }
+</script>
+</body>
+</html>
