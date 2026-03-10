@@ -74,8 +74,27 @@ public class Section {
     public void setDeliveryMode(DeliveryMode deliveryMode) { this.deliveryMode = deliveryMode; }
     public void setEnrolledCount(int enrolledCount) { this.enrolledCount = enrolledCount; }
 
+    @Column(nullable = false)
+    private int waitlistCount = 0;
+
+
+    public static final int WAITLIST_CAP = 10;
+
+
+    public int getWaitlistCount() { return waitlistCount; }
+    public void setWaitlistCount(int waitlistCount) { this.waitlistCount = waitlistCount; }
+
+    public boolean isOpen() {
+        return this.enrolledCount < this.capacity;
+    }
+
+
     public boolean isFull() {
-        return enrolledCount >= capacity;
+        return this.enrolledCount >= this.capacity && this.waitlistCount >= WAITLIST_CAP;
+    }
+
+    public boolean isWaitlist() {
+        return this.enrolledCount >= this.capacity && this.waitlistCount < WAITLIST_CAP;
     }
 
     public boolean hasTimeConflict(Section other) {
