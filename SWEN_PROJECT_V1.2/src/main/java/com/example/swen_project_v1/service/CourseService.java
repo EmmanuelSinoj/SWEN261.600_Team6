@@ -34,6 +34,10 @@ public class CourseService {
             throw new IllegalArgumentException("duplicate_code:A course with code '" + code + "' already exists.");
         }
 
+        validateCourseCode(code);
+        if (courseRepository.existsByCode(code)) {
+            throw new IllegalArgumentException("duplicate_code:A course with code '" + code + "' already exists.");
+        }
         validateCredits(credits, minCredits, maxCredits);
 
         Course course = new Course();
@@ -249,5 +253,11 @@ public class CourseService {
 
     private boolean hasTimeOverlap(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
         return start1.isBefore(end2) && start2.isBefore(end1);
+    }
+
+    private void validateCourseCode(String code) {
+        if (code == null || !code.matches("^[a-zA-Z]{4}-?[0-6][0-9]{2}$")) {
+            throw new IllegalArgumentException("invalid_code:Course code must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101).");
+        }
     }
 }

@@ -305,8 +305,15 @@
         </div>
         <form method="post" action="/admin/courses/create">
             <div class="form-grid">
-                <input class="input" name="code" placeholder="Course Code (e.g., CS101)" required
-                       value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
+                <div>
+                    <input class="input" name="code" placeholder="Course Code (e.g., SWEN-261)" required
+                           pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
+                           title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)"
+                           value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
+                    <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
+                        Format: 4 letters + 3 digits (e.g. SWEN-261). Max: 699.
+                    </div>
+                </div>
                 <input class="input" name="title" placeholder="Course Title" required
                        value="{{#courseTitle}}{{courseTitle}}{{/courseTitle}}" />
                 <input class="input" name="credits" type="number" placeholder="Credits (1-4)" min="1" max="4" required
@@ -421,7 +428,14 @@
                     <form method="post" action="/admin/courses/update">
                         <input type="hidden" name="id" value="{{id}}" />
                         <div class="form-grid">
-                            <input class="input" name="code" value="{{code}}" required />
+                            <div>
+                                <input class="input" name="code" value="{{code}}" required
+                                       pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
+                                       title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)" />
+                                <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
+                                    Format: 4 letters + 3 digits. Max: 699.
+                                </div>
+                            </div>
                             <input class="input" name="title" value="{{title}}" required />
                             <input class="input" name="credits" type="number" value="{{credits}}" min="1" max="4" required />
                             <input class="input" name="minCredits" type="number" value="{{minCredits}}" min="1" max="4" required />
