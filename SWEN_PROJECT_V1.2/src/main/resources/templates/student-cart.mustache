@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>UniEnroll • Cart</title>
+    <style>
+        :root{
+            --bg:#0b1220;
+            --card:#111a2e;
+            --text:#e9eefc;
+            --muted:#a9b4d0;
+            --accent:#7c5cff;
+            --accent2:#22c55e;
+            --danger:#ef4444;
+            --border:rgba(255,255,255,.10);
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color:var(--text);
+            min-height:100vh;
+        }
+        .navbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:0.5rem 2rem;
+            background: rgba(17,26,46,.95);
+            border-bottom:1px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+        .nav-brand { font-size:1.25rem; font-weight:bold; color:var(--text); text-decoration:none; }
+        .nav-brand span { color: var(--accent); }
+        .nav-links { display:flex; gap:1.5rem; }
+        .nav-link {
+            color: var(--muted);
+            text-decoration:none;
+            font-size:0.95rem;
+            font-weight:500;
+            padding:0.5rem 0;
+            border-bottom:2px solid transparent;
+        }
+        .nav-link.active { color: var(--text); border-bottom-color: var(--accent); }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .course-card {
+            background: rgba(17,26,46,.85);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .course-code { color: var(--accent); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .course-title { font-size: 1.25rem; font-weight: bold; margin: 0 0 1rem 0; }
+        .detail { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        .btn-logout {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .message-success {
+            background: rgba(34,197,94,0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(34,197,94,0.35);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .message-error {
+            background: rgba(239,68,68,0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.35);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .empty {
+            text-align:center;
+            color:var(--muted);
+            padding:3rem;
+            background: rgba(17,26,46,.85);
+            border-radius:16px;
+            border:1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/student" class="nav-brand">Uni<span>Enroll</span></a>
+
+    <div class="nav-links">
+        <a href="/student" class="nav-link {{#navCatalog}}active{{/navCatalog}}">Catalog</a>
+        <a href="/student/cart" class="nav-link {{#navCart}}active{{/navCart}}">Cart</a>
+        <a href="/student/enrolled" class="nav-link {{#navEnrolled}}active{{/navEnrolled}}">Enrolled</a>
+        <a href="/student/timetable" class="nav-link {{#navTimetable}}active{{/navTimetable}}">Timetable</a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 0.9rem; color: var(--muted);">👤 {{firstName}} {{lastName}}</span>
+        <form method="post" action="/logout" style="margin:0;">
+            <button class="btn-logout" type="submit">Sign Out</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>My Enrollment Cart</h1>
+
+    {{#successMessage}}
+        <div class="message-success">{{successMessage}}</div>
+    {{/successMessage}}
+
+    {{#errorMessage}}
+        <div class="message-error">{{errorMessage}}</div>
+    {{/errorMessage}}
+
+    {{#cartSections}}
+        <div class="course-card">
+            <div class="course-code">{{course.code}} ({{course.credits}} CR)</div>
+            <h3 class="course-title">{{course.title}}</h3>
+
+            <div class="detail">👨‍🏫 {{professor}}</div>
+            <div class="detail">📅 {{daysString}} {{startTime}} - {{endTime}}</div>
+            <div class="detail">💻 Mode: {{deliveryMode}}</div>
+            <div class="detail">CRN: {{crn}}</div>
+
+            <form method="post" action="/student/cart/remove">
+                <input type="hidden" name="sectionId" value="{{id}}">
+                <button class="btn" type="submit">Remove from Cart</button>
+            </form>
+        </div>
+    {{/cartSections}}
+
+    {{^cartSections}}
+        <div class="empty">
+            <h3>Your cart is empty</h3>
+            <p>Add courses from the catalog to see them here.</p>
+        </div>
+    {{/cartSections}}
+</div>
+
+</body>
+</html>
