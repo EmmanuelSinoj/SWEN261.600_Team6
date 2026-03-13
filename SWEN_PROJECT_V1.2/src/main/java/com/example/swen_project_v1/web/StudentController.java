@@ -4,22 +4,32 @@ import com.example.swen_project_v1.auth.User;
 import com.example.swen_project_v1.auth.UserRepository;
 import com.example.swen_project_v1.course.DayOfWeek;
 import com.example.swen_project_v1.course.DeliveryMode;
+import com.example.swen_project_v1.course.Section;
 import com.example.swen_project_v1.course.SectionRepository;
+import com.example.swen_project_v1.service.EnrollmentCartService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 public class StudentController {
 
     private final UserRepository userRepository;
     private final SectionRepository sectionRepository;
+    private final EnrollmentCartService enrollmentCartService;
 
-    public StudentController(UserRepository userRepository, SectionRepository sectionRepository) {
+    public StudentController(UserRepository userRepository,
+                             SectionRepository sectionRepository,
+                             EnrollmentCartService enrollmentCartService) {
         this.userRepository = userRepository;
         this.sectionRepository = sectionRepository;
+        this.enrollmentCartService = enrollmentCartService;
     }
 
     // Helper method to keep user data loading DRY
@@ -41,32 +51,52 @@ public class StudentController {
         populateBaseModel(authentication, model);
         model.addAttribute("navCatalog", true);
 
-        // Clean up empty strings from the frontend
         if (query != null && query.isBlank()) query = null;
         if (professor != null && professor.isBlank()) professor = null;
 
-        // Convert 'days' String to DayOfWeek Enum
         DayOfWeek dayEnum = null;
         if (days != null && !days.isBlank()) {
             dayEnum = DayOfWeek.valueOf(days);
         }
 
-        // Convert level (e.g., 100) to a string prefix (e.g., "1")
         String levelPrefix = (level != null) ? String.valueOf(level / 100) : null;
 
-        // Execute the advanced search
         model.addAttribute("sections", sectionRepository.searchCatalog(query, levelPrefix, professor, mode, dayEnum));
         return "student";
     }
 
-    // --- NEW "COMING SOON" ROUTES ---
+    @PostMapping("/student/cart/add")
+    public String addToCart(@RequestParam Long sectionId,
+                            Authentication authentication,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            enrollmentCartService.addToCart(authentication.getName(), sectionId);
+            redirectAttributes.addFlashAttribute("successMessage", "Section added to cart successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/student";
+    }
 
     @GetMapping("/student/cart")
     public String studentCart(Authentication authentication, Model model) {
         populateBaseModel(authentication, model);
         model.addAttribute("navCart", true);
-        model.addAttribute("pageTitle", "Shopping Cart");
-        return "coming-soon";
+
+        List<Section> cartSections = enrollmentCartService.getCartSections(authentication.getName());
+        model.addAttribute("cartSections", cartSections);
+
+        return "student-cart";
+    }
+
+    @PostMapping("/student/cart/remove")
+    public String removeFromCart(@RequestParam Long sectionId,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        enrollmentCartService.removeFromCart(authentication.getName(), sectionId);
+        redirectAttributes.addFlashAttribute("successMessage", "Section removed from cart.");
+        return "redirect:/student/cart";
     }
 
     @GetMapping("/student/enrolled")
