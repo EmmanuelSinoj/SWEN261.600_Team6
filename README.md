@@ -42,7 +42,7 @@ Students using UniEnroll can:
 - Commit and finalize enrollment  
 - Have their enrollment basket preserved across logouts and system restarts  
 
--
+--
 
 ### Administrator Capabilities
 
