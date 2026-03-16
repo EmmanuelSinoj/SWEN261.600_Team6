@@ -116,7 +116,7 @@ Implement core user functionalities including login, logout and role based redir
 
 **Sprint Goal:** Equip administrators with tools to build and manage the course catalog, and empower students to browse, filter, and plan their schedules using a persistent shopping cart and real-time seat availability indicators.
 
-**Duration:** 26th February 2026 to 15th March 2026
+**Duration:** 04th February 2026 to 15th March 2026
 
 **Completed Stories:**
 1. US-04: Create Course & Schedule Sections
