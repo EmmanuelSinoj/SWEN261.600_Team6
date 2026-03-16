@@ -112,6 +112,40 @@ Implement core user functionalities including login, logout and role based redir
 
 ---
 
+## Sprint 2 Details
+
+**Sprint Goal:** Equip administrators with tools to build and manage the course catalog, and empower students to browse, filter, and plan their schedules using a persistent shopping cart and real-time seat availability indicators.
+
+**Duration:** 26th February 2026 to 15th March 2026
+
+**Completed Stories:**
+1. US-04: Create Course & Schedule Sections
+2. US-05: Advanced Search & Filter
+3. US-06: View Course Availability
+4. US-07: Manage Enrollment Cart
+
+---
+
+## Project Progress: Completed User Stories & Features
+
+### Features Implemented So Far
+The UniEnroll platform now has a solid foundation for both Administrative and Student workflows. 
+
+* **Security & Access:** Secure user login, session management, and Role-Based Access Control (RBAC) correctly routing Students and Admins to their respective dashboards.
+* **Admin Capabilities:** Administrators can fully manage student accounts (add, update, delete, activate/deactivate) and control the academic catalog by creating, updating, and deleting Courses and scheduling specific Sections.
+* **Student Experience:** Students can browse the catalog using an advanced search and filter system (by keyword, level, professor, delivery mode, and days). They can see real-time status badges (OPEN, WAITLIST, FULL) based on current enrollments, and draft their upcoming schedule using a persistent database-backed Shopping Cart.
+
+### Complete List of Delivered User Stories (Sprints 1 & 2)
+- [x] **US-01:** User Login & Role Redirect  
+- [x] **US-02:** Role-Based Access Control (RBAC)  
+- [x] **US-03:** Manage Student Accounts
+- [x] **US-04:** Create Course & Schedule Sections
+- [x] **US-05:** Advanced Search & Filter
+- [x] **US-06:** View Course Availability
+- [x] **US-07:** Manage Enrollment Cart
+
+---
+
 ## Links
 
 - **GitHub Repository:**  
