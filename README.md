@@ -126,6 +126,13 @@ Implement core user functionalities including login, logout and role based redir
 
 ---
 
+## Technology Stack
+* **Backend:** Java with Spring Boot (Spring Web, Spring Data JPA, Spring Security)
+* **Frontend:** HTML/CSS with Mustache Templating Engine
+* **Database:** Relational Database (managed via Hibernate/JPA)
+
+---
+
 ## Project Progress: Completed User Stories & Features
 
 ### Features Implemented So Far
