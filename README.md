@@ -136,10 +136,26 @@ Implement core user functionalities including login, logout and role based redir
 - **Cart Routing Integration:** Updated StudentController.java to integrate cart-related endpoints and connect the frontend with the backend cart functionality.
 
 **Saood:**
+
 - **Course & Section Domain Modeling (US-04):** Designed and implemented the core backend entities (Course.java, Section.java), defining relationships between courses and their scheduled sections, including attributes such as course code, title, instructor, schedule, and capacity.
+
 - **Business Logic Development:** Built CourseService.java to manage course and section operations (create, update, delete), enforcing constraints like valid scheduling data and section capacity handling.
+
 - **Admin Dashboard UI (Mustache):** Developed the admin-courses.mustache page, providing administrators with an interface to create, edit, and delete courses and sections.
+
 - **Testing & Validation:** Conducted end-to-end testing of course and section functionality, ensuring correct CRUD operations, business logic enforcement, and proper UI rendering.
+
+**Mohammad Hesham:**
+
+-  **Glossary of Terms (Assignment 1 - Part A):** Created and structured the project glossary (Glossary.md), defining all domain-specific terms such as Section, Course, Enrollment Basket, and Commit, along with their attributes, related terms, and business rules.
+
+-  **Technical & Acronym Definitions:** Included technical implementation terms (e.g., DTO, Transaction, Persistence) and acronyms (e.g., API, CRUD, REST, RBAC) as required in the assignment.
+
+-  **Student Dashboard Enhancement (US-05 / US-06):** Updated and refined the student.mustache frontend to align with the advanced search and real-time availability features. Improved UI structure, layout consistency, and integration of dynamic data rendering from the backend.
+
+-  **Cart UI Integration (US-07):** Integrated the enrollment cart view into the student dashboard by updating student.mustache and adding student-cart.mustache, ensuring seamless navigation between course browsing and cart management.
+
+-  **Frontend-Backend Synchronization:** Ensured that Mustache templates correctly reflect backend-provided data (filters, course states, and cart interactions), enabling a consistent and responsive user experience across page reloads.
 ---
 
 ## Technology Stack
