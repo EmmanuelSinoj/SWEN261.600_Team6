@@ -144,7 +144,17 @@ Implement core user functionalities including login, logout and role based redir
 - **Admin Dashboard UI (Mustache):** Developed the admin-courses.mustache page, providing administrators with an interface to create, edit, and delete courses and sections.
 
 - **Testing & Validation:** Conducted end-to-end testing of course and section functionality, ensuring correct CRUD operations, business logic enforcement, and proper UI rendering.
+  
+*Ahmed:*
 
+- *Repository Layer Implementation:* Created CourseRepository.java (and SectionRepository.java if applicable) using Spring Data JPA to handle database operations for courses and sections in MariaDB.
+  
+- *Admin Controller & Endpoints:* Implemented CourseAdminController.java with endpoints for creating, updating, and deleting courses and sections, including request validation and handling.
+  
+- *Dashboard Integration:* Connected backend data to the admin dashboard, enabling dynamic rendering of courses and their associated sections using Mustache templates.
+  
+- *Testing Support:* Assisted in testing course and section management features, verifying endpoint functionality, data persistence, and frontend-backend integration.
+  
 **Mohammad Hesham:**
 
 -  **Glossary of Terms (Assignment 1 - Part A):** Created and structured the project glossary (Glossary.md), defining all domain-specific terms such as Section, Course, Enrollment Basket, and Commit, along with their attributes, related terms, and business rules.
