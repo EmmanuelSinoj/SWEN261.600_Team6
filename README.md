@@ -166,6 +166,18 @@ Implement core user functionalities including login, logout and role based redir
 -  **Cart UI Integration (US-07):** Integrated the enrollment cart view into the student dashboard by updating student.mustache and adding student-cart.mustache, ensuring seamless navigation between course browsing and cart management.
 
 -  **Frontend-Backend Synchronization:** Ensured that Mustache templates correctly reflect backend-provided data (filters, course states, and cart interactions), enabling a consistent and responsive user experience across page reloads.
+
+**Ammar:**
+
+- Advanced Search & Filter Backend Support (US-05): Implemented search and filtering logic in SectionRepository.java using custom JPQL queries to allow filtering by course code, title, professor, delivery mode, level prefix, and day, enabling multi-criteria catalog search functionality.
+
+- Course Availability Logic (US-06): Extended Section.java by adding capacity, enrollment count, and waitlist handling, along with helper methods to determine whether a section is OPEN, WAITLIST, or FULL, ensuring correct availability status is shown in the student catalog.
+
+- Schedule Conflict Detection: Implemented time-conflict validation between sections based on meeting days and start/end times to support correct filtering results and prevent invalid schedule combinations.
+
+- Catalog Filtering Integration: Ensured repository queries correctly interact with backend services so filtered results return accurate section data, including professor, schedule, delivery mode, and availability state.
+
+- UI Template Contribution: Created coming-soon.mustache with navbar integration and consistent styling to match the student dashboard layout.
 ---
 
 ## Technology Stack
