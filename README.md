@@ -128,7 +128,6 @@ Implement core user functionalities including login, logout and role based redir
 - **Student Dashboard UI:** Built the core frontend interface (student.mustache) featuring a responsive dark-theme layout, top navigation bar, and clean empty-state handling ({{^sections}}) for zero-result searches.
 - **Advanced Search & Filter (US-05):** Engineered the frontend sidebar form and backend GET routing (StudentController.java) to process multi-parameter queries (including data sanitization like converting level 100 to prefix "1"). Added client-side JavaScript to retain and auto-select filter states after page reloads.
 - **Real-Time Availability (US-06):** Implemented Mustache conditional logic ({{#isOpen}}, {{#isWaitlist}}, {{#isFull}}) to render color-coded course capacity badges dynamically based on the database's enrollment data.
-- **Routing Preparation:** Set up the "Coming Soon" frontend views and initialized the controller endpoints (/student/cart, /student/enrolled) to lay the groundwork for the later user stories.
 
 **Leen**:
 
