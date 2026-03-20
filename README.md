@@ -131,8 +131,10 @@ Implement core user functionalities including login, logout and role based redir
 - **Routing Preparation:** Set up the "Coming Soon" frontend views and initialized the controller endpoints (/student/cart, /student/enrolled) to lay the groundwork for the later user stories.
 
 **Leen**:
-**• Enrollment Cart Backend (US-07):** Implemented the backend logic for the enrollment cart using Cart.java, CartRepository.java, and EnrollmentCartService.java, enabling persistent cart storage in MariaDB and enforcing business rules such as preventing duplicate section additions and handling time conflicts.
-• **Cart Routing Integration:** Updated StudentController.java to integrate cart-related endpoints and connect the frontend with the backend cart functionality.
+
+-  **Enrollment Cart Backend (US-07):** Implemented the backend logic for the enrollment cart using Cart.java, CartRepository.java, and EnrollmentCartService.java, enabling persistent cart storage in MariaDB and enforcing business rules such as preventing duplicate section additions and handling time conflicts.
+
+- **Cart Routing Integration:** Updated StudentController.java to integrate cart-related endpoints and connect the frontend with the backend cart functionality.
 
 ---
 
