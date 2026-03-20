@@ -135,6 +135,11 @@ Implement core user functionalities including login, logout and role based redir
 
 - **Cart Routing Integration:** Updated StudentController.java to integrate cart-related endpoints and connect the frontend with the backend cart functionality.
 
+**Saood:**
+- **Course & Section Domain Modeling (US-04):** Designed and implemented the core backend entities (Course.java, Section.java), defining relationships between courses and their scheduled sections, including attributes such as course code, title, instructor, schedule, and capacity.
+- **Business Logic Development:** Built CourseService.java to manage course and section operations (create, update, delete), enforcing constraints like valid scheduling data and section capacity handling.
+- **Admin Dashboard UI (Mustache):** Developed the admin-courses.mustache page, providing administrators with an interface to create, edit, and delete courses and sections.
+- **Testing & Validation:** Conducted end-to-end testing of course and section functionality, ensuring correct CRUD operations, business logic enforcement, and proper UI rendering.
 ---
 
 ## Technology Stack
