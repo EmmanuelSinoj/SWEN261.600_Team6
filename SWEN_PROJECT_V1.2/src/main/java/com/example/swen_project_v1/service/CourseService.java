@@ -246,6 +246,8 @@ public class CourseService {
             throw new IllegalArgumentException("has_enrollments:Cannot delete section with enrolled students.");
         }
 
+        sectionRepository.deleteLinksInCarts(sectionId);
+
         Course course = section.getCourse();
         course.getSections().remove(section);
         sectionRepository.delete(section);
@@ -256,8 +258,8 @@ public class CourseService {
     }
 
     private void validateCourseCode(String code) {
-        if (code == null || !code.matches("^[a-zA-Z]{4}-?[0-6][0-9]{2}$")) {
-            throw new IllegalArgumentException("invalid_code:Course code must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101).");
+        if (code == null || !code.matches("^[A-Z]{4}[0-6][0-9]{2}$")) {
+            throw new IllegalArgumentException("invalid_code:Course code must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN261 or CSCI101).");
         }
     }
 }

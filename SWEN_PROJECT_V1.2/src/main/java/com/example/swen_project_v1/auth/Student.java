@@ -1,5 +1,6 @@
 package com.example.swen_project_v1.auth;
 
+import com.example.swen_project_v1.cart.Cart;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,9 @@ public class Student extends User {
 
     @Column(nullable=false, name="max_credits")
     private int maxCredits = 18;
+
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
 
     public String getStudentId() { return studentId; }
     public int getCurrentCredits() { return currentCredits; }

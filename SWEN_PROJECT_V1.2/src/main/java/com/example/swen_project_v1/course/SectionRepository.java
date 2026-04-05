@@ -1,6 +1,7 @@
 package com.example.swen_project_v1.course;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -31,4 +32,8 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
             @Param("professor") String professor,
             @Param("mode") DeliveryMode mode,
             @Param("day") DayOfWeek day);
+
+    @Modifying
+    @Query(value = "DELETE FROM cart_sections WHERE section_id = :sectionId", nativeQuery = true)
+    void deleteLinksInCarts(Long sectionId);
 }
