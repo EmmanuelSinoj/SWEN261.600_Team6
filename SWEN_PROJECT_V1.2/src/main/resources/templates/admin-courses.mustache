@@ -261,6 +261,15 @@
             border-color:var(--accent);
         }
         .hidden{display:none}
+
+        /* Helper class added for labels */
+        .form-label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: var(--text);
+        }
     </style>
 </head>
 <body>
@@ -295,7 +304,6 @@
         <a href="/admin/courses" class="tab active">Courses</a>
     </div>
 
-    <!-- Create Course Panel -->
     <div class="card">
         <div class="card-header">
             <div>
@@ -306,12 +314,12 @@
         <form method="post" action="/admin/courses/create">
             <div class="form-grid">
                 <div>
-                    <input class="input" name="code" placeholder="Course Code (e.g., SWEN-261)" required
-                           pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
-                           title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)"
+                    <input class="input" name="code" placeholder="Course Code (e.g., SWEN261)" required
+                           pattern="[A-Z]{4}[0-6][0-9]{2}"
+                           title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN261 or CSCI101)"
                            value="{{#courseCode}}{{courseCode}}{{/courseCode}}" />
                     <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
-                        Format: 4 letters + 3 digits (e.g. SWEN-261). Max: 699.
+                        Format: 4 letters + 3 digits (e.g. SWEN261). Max: 699.
                     </div>
                 </div>
                 <input class="input" name="title" placeholder="Course Title" required
@@ -327,7 +335,6 @@
         </form>
     </div>
 
-    <!-- Create Section Panel -->
     <div class="card">
         <div class="card-header">
             <div>
@@ -377,7 +384,6 @@
         </form>
     </div>
 
-    <!-- Course Catalog with Dropdown Selector -->
     <div class="card">
         <div class="card-header">
             <div>
@@ -403,7 +409,6 @@
             </select>
         </div>
 
-        <!-- Course details (hidden by default, shown via JS) -->
         {{#courses}}
             <div id="course-{{id}}" class="course-display">
                 <div class="course-header">
@@ -423,33 +428,48 @@
                     </div>
                 </div>
 
-                <!-- Edit Course Form (Hidden) -->
                 <div id="edit-course-{{id}}" style="display:none;margin-bottom:20px;padding:16px;background:rgba(0,0,0,.15);border-radius:10px;">
+                    <h4 style="margin-top: 0; margin-bottom: 15px;">Editing Course: {{code}}</h4>
                     <form method="post" action="/admin/courses/update">
                         <input type="hidden" name="id" value="{{id}}" />
                         <div class="form-grid">
                             <div>
+                                <label class="form-label">Course Code</label>
                                 <input class="input" name="code" value="{{code}}" required
-                                       pattern="[a-zA-Z]{4}-?[0-6][0-9]{2}"
-                                       title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN-261 or CSCI101)" />
+                                       pattern="[A-Z]{4}[0-6][0-9]{2}"
+                                       title="Must be 4 letters followed by a 3-digit number (max level 699, e.g., SWEN261 or CSCI101)" />
                                 <div style="font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.2;">
                                     Format: 4 letters + 3 digits. Max: 699.
                                 </div>
                             </div>
-                            <input class="input" name="title" value="{{title}}" required />
-                            <input class="input" name="credits" type="number" value="{{credits}}" min="1" max="4" required />
-                            <input class="input" name="minCredits" type="number" value="{{minCredits}}" min="1" max="4" required />
-                            <input class="input" name="maxCredits" type="number" value="{{maxCredits}}" min="1" max="4" required />
-                            <input class="input" name="description" value="{{description}}" placeholder="Description" />
+                            <div>
+                                <label class="form-label">Course Title</label>
+                                <input class="input" name="title" value="{{title}}" required />
+                            </div>
+                            <div>
+                                <label class="form-label">Base Credits</label>
+                                <input class="input" name="credits" type="number" value="{{credits}}" min="1" max="4" required />
+                            </div>
+                            <div>
+                                <label class="form-label">Min Credits</label>
+                                <input class="input" name="minCredits" type="number" value="{{minCredits}}" min="1" max="4" required />
+                            </div>
+                            <div>
+                                <label class="form-label">Max Credits</label>
+                                <input class="input" name="maxCredits" type="number" value="{{maxCredits}}" min="1" max="4" required />
+                            </div>
+                            <div>
+                                <label class="form-label">Description</label>
+                                <input class="input" name="description" value="{{description}}" placeholder="Description" />
+                            </div>
                         </div>
-                        <div class="form-actions">
+                        <div class="form-actions" style="margin-top: 16px;">
                             <button type="button" class="btn secondary small" onclick="toggleEditCourse('{{id}}')">Cancel</button>
                             <button class="btn small" type="submit">Save Changes</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Sections List -->
                 <div class="section-list">
                     <div class="h2">Scheduled Sections</div>
                     {{#sections}}
@@ -466,18 +486,21 @@
                             </form>
                         </div>
 
-                        <!-- Edit Section Form (Hidden) -->
                         <div id="edit-section-{{id}}" style="display:none;margin:10px 0 16px;padding:16px;background:rgba(0,0,0,.2);border-radius:10px;">
+                            <h4 style="margin-top: 0; margin-bottom: 15px;">Editing Section: {{crn}}</h4>
                             <form method="post" action="/admin/sections/update">
                                 <input type="hidden" name="id" value="{{id}}" />
                                 <div class="form-grid">
-                                    <select name="deliveryMode" required style="grid-column:span 3;">
-                                        {{#deliveryModes}}
-                                            <option value="{{.}}">{{.}}</option>
-                                        {{/deliveryModes}}
-                                    </select>
+                                    <div style="grid-column:span 3;">
+                                        <label class="form-label">Delivery Mode</label>
+                                        <select name="deliveryMode" required class="input">
+                                            {{#deliveryModes}}
+                                                <option value="{{.}}">{{.}}</option>
+                                            {{/deliveryModes}}
+                                        </select>
+                                    </div>
                                     <div class="checkbox-group" style="grid-column:span 3;" id="edit-days-{{id}}">
-                                        <span style="color:var(--muted);font-size:12px;">Days (select at least one):</span>
+                                        <span class="form-label" style="width:100%;">Meeting Days (select at least one):</span>
                                         {{#days}}
                                             <span class="selected-day" style="display:none;">{{.}}</span>
                                         {{/days}}
@@ -487,13 +510,28 @@
                                         <label class="checkbox-item"><input type="checkbox" name="days" value="THU" /><span>THU</span></label>
                                         <label class="checkbox-item"><input type="checkbox" name="days" value="FRI" /><span>FRI</span></label>
                                     </div>
-                                    <input class="input" name="startTime" type="time" value="{{startTime}}" required />
-                                    <input class="input" name="endTime" type="time" value="{{endTime}}" required />
-                                    <input class="input" name="room" value="{{room}}" required />
-                                    <input class="input" name="capacity" type="number" value="{{capacity}}" min="1" max="30" required />
-                                    <input class="input" name="professor" value="{{professor}}" required />
+                                    <div>
+                                        <label class="form-label">Start Time</label>
+                                        <input class="input" name="startTime" type="time" value="{{startTime}}" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">End Time</label>
+                                        <input class="input" name="endTime" type="time" value="{{endTime}}" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Room</label>
+                                        <input class="input" name="room" value="{{room}}" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Capacity</label>
+                                        <input class="input" name="capacity" type="number" value="{{capacity}}" min="1" max="30" required />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Professor</label>
+                                        <input class="input" name="professor" value="{{professor}}" required />
+                                    </div>
                                 </div>
-                                <div class="form-actions">
+                                <div class="form-actions" style="margin-top: 16px;">
                                     <button type="button" class="btn secondary small" onclick="toggleEditSection('{{id}}')">Cancel</button>
                                     <button class="btn small" type="submit">Save Changes</button>
                                 </div>
