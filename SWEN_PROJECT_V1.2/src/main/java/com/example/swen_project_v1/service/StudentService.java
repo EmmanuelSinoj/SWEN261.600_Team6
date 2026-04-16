@@ -4,6 +4,10 @@ import com.example.swen_project_v1.auth.Role;
 import com.example.swen_project_v1.auth.Student;
 import com.example.swen_project_v1.auth.StudentRepository;
 import com.example.swen_project_v1.auth.UserRepository;
+import com.example.swen_project_v1.course.Enrollment;
+import com.example.swen_project_v1.course.EnrollmentStatus;
+import com.example.swen_project_v1.course.Section;
+import com.example.swen_project_v1.course.SectionRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,14 +21,16 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SectionRepository sectionRepository;
 
     // Constructor Injection
     public StudentService(StudentRepository studentRepository,
                           UserRepository userRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, SectionRepository sectionRepository) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sectionRepository = sectionRepository;
     }
 
     public List<Student> getAllStudents() {
@@ -99,6 +105,22 @@ public class StudentService {
     @Transactional
     public Student deleteStudent(Long id) {
         Student student = getStudentById(id);
+
+        for (Enrollment enrollment : student.getEnrollments()) {
+            // FIX: Fetch the locked version of the section from the DB!
+            // Do not just rely on enrollment.getSection() which might have stale data.
+            Section lockedSection = sectionRepository.findByIdWithPessimisticLock(enrollment.getSection().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Section not found."));
+
+            if (enrollment.getStatus() == EnrollmentStatus.ENROLLED) {
+                lockedSection.setEnrolledCount(lockedSection.getEnrolledCount() - 1);
+            } else if (enrollment.getStatus() == EnrollmentStatus.WAITLISTED) {
+                lockedSection.setWaitlistCount(lockedSection.getWaitlistCount() - 1);
+            }
+
+            sectionRepository.save(lockedSection);
+        }
+
         studentRepository.deleteById(id);
         return student;
     }

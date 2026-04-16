@@ -1,5 +1,7 @@
 package com.example.swen_project_v1.service;
 
+import com.example.swen_project_v1.auth.Student;
+import com.example.swen_project_v1.auth.UserRepository;
 import com.example.swen_project_v1.course.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +14,12 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final SectionRepository sectionRepository;
+    private final UserRepository userRepository;
 
-    public CourseService(CourseRepository courseRepository, SectionRepository sectionRepository) {
+    public CourseService(CourseRepository courseRepository, SectionRepository sectionRepository, UserRepository userRepository) {
         this.courseRepository = courseRepository;
         this.sectionRepository = sectionRepository;
+        this.userRepository = userRepository;
     }
 
     // Course operations
@@ -240,16 +244,36 @@ public class CourseService {
 
     @Transactional
     public void deleteSection(Long sectionId) {
+        // 1. Fetch the section and its course details
         Section section = getSectionById(sectionId);
+        int creditsToRefund = section.getCourse().getCredits();
 
-        if (section.getEnrolledCount() > 0) {
-            throw new IllegalArgumentException("has_enrollments:Cannot delete section with enrolled students.");
+        // 2. Refund credits to all students (Enrolled or Waitlisted)
+        // We do this BEFORE deleting the section to ensure data integrity
+        for (Enrollment enrollment : section.getEnrollments()) {
+            Student student = enrollment.getStudent();
+
+            // Subtract credits from student's profile
+            int current = student.getCurrentCredits();
+            student.setCurrentCredits(Math.max(0, current - creditsToRefund));
+
+            // Save the student update
+            userRepository.save(student);
         }
 
+        // 3. Clean up Cart references
+        // This ensures no student has a "ghost" section in their shopping cart
         sectionRepository.deleteLinksInCarts(sectionId);
 
+        // 4. Disconnect from the parent Course object
         Course course = section.getCourse();
-        course.getSections().remove(section);
+        if (course != null) {
+            course.getSections().remove(section);
+        }
+
+        // 5. Final Delete
+        // CascadeType.ALL on the Section-Enrollment relationship will
+        // automatically delete the enrollment records for you.
         sectionRepository.delete(section);
     }
 

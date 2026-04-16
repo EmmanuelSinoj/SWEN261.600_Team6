@@ -1,7 +1,11 @@
 package com.example.swen_project_v1.auth;
 
 import com.example.swen_project_v1.cart.Cart;
+import com.example.swen_project_v1.course.Enrollment;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="students", uniqueConstraints = @UniqueConstraint(columnNames = "student_id"))
@@ -18,6 +22,14 @@ public class Student extends User {
 
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments = new ArrayList<>();
+
+    // Add a getter
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
 
     public String getStudentId() { return studentId; }
     public int getCurrentCredits() { return currentCredits; }

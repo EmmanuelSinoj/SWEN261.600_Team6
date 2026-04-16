@@ -50,6 +50,14 @@ public class Section {
     @Column(nullable = false)
     private int enrolledCount = 0;
 
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments = new ArrayList<>();
+
+    // Add a getter
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
+
     public Long getId() { return id; }
     public String getCrn() { return crn; }
     public Course getCourse() { return course; }
@@ -121,4 +129,5 @@ public class Section {
         }
         return sb.toString();
     }
+
 }
