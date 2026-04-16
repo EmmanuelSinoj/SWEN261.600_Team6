@@ -1,5 +1,6 @@
 package com.example.swen_project_v1.web;
 
+import com.example.swen_project_v1.auth.Student;
 import com.example.swen_project_v1.auth.User;
 import com.example.swen_project_v1.auth.UserRepository;
 import com.example.swen_project_v1.course.DayOfWeek;
@@ -84,8 +85,30 @@ public class StudentController {
         populateBaseModel(authentication, model);
         model.addAttribute("navCart", true);
 
+        // Load student to access credit limit and current enrolled credits
+        Student student = (Student) userRepository
+                .findByEmailIgnoreCase(authentication.getName()).orElseThrow();
+
         List<Section> cartSections = enrollmentCartService.getCartSections(authentication.getName());
         model.addAttribute("cartSections", cartSections);
+
+        // Credit summary values (US-08A)
+        int cartCredits     = cartSections.stream().mapToInt(s -> s.getCourse().getCredits()).sum();
+        int enrolledCredits = student.getCurrentCredits();
+        int combinedCredits = enrolledCredits + cartCredits;
+        int maxCredits      = student.getMaxCredits();
+
+        model.addAttribute("enrolledCredits",  enrolledCredits);
+        model.addAttribute("cartCredits",      cartCredits);
+        model.addAttribute("combinedCredits",  combinedCredits);
+        model.addAttribute("maxCredits",       maxCredits);
+        model.addAttribute("overCreditLimit",  combinedCredits > maxCredits);
+
+        // hasCartItems and cartItemCount are used in the template to render the
+        // credit bar and Enroll Now footer exactly once (not inside the per-card loop)
+        boolean hasItems = !cartSections.isEmpty();
+        model.addAttribute("hasCartItems",  hasItems);
+        model.addAttribute("cartItemCount", cartSections.size());
 
         return "student-cart";
     }
@@ -97,6 +120,22 @@ public class StudentController {
         enrollmentCartService.removeFromCart(authentication.getName(), sectionId);
         redirectAttributes.addFlashAttribute("successMessage", "Section removed from cart.");
         return "redirect:/student/cart";
+    }
+
+
+
+    @PostMapping("/student/cart/enroll-all")
+    public String enrollAll(Authentication authentication,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            enrollmentCartService.checkoutAllCartItems(authentication.getName());
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Successfully enrolled in all courses!");
+            return "redirect:/student/enrolled";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/student/cart";
+        }
     }
 
     @GetMapping("/student/enrolled")
