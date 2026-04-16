@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+
 
 public interface SectionRepository extends JpaRepository<Section, Long> {
     List<Section> findByCourseId(Long courseId);
@@ -36,4 +39,8 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
     @Modifying
     @Query(value = "DELETE FROM cart_sections WHERE section_id = :sectionId", nativeQuery = true)
     void deleteLinksInCarts(Long sectionId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Section s WHERE s.id = :id")
+    Optional<Section> findByIdWithPessimisticLock(@Param("id") Long id);
 }
