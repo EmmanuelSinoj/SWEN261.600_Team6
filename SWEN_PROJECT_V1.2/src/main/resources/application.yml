@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3307/unienroll
+    url: jdbc:mariadb://localhost:3306/unienroll
     username: root
-    password: Scrummaster
+    password: abc12345
   jpa:
     hibernate:
       ddl-auto: update

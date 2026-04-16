@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniEnroll • My Enrollments</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #111a2e;
+            --text: #e9eefc;
+            --muted: #a9b4d0;
+            --accent: #7c5cff;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: rgba(255,255,255,.10);
+        }
+
+        body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* ── Navbar ── */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: rgba(17,26,46,.95);
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+        }
+        .nav-brand { font-size: 1.25rem; font-weight: bold; color: var(--accent); flex: 1; }
+
+        .nav-links { flex: 1; text-align: center; }
+        .nav-links a { color: var(--text); text-decoration: none; margin: 0 1rem; font-weight: 500; }
+        .nav-links a:hover { color: var(--accent); }
+
+        .nav-profile { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; }
+        .user-greeting { font-weight: 500; color: var(--muted); }
+        .user-greeting span { color: var(--text); font-weight: bold; }
+
+        .btn-signout {
+            background: transparent; color: var(--text); border: 1px solid var(--border);
+            padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-signout:hover { background: rgba(255,255,255,0.05); border-color: var(--muted); }
+
+        /* ── Main Container ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-header h2 { margin: 0; font-size: 1.8rem; }
+        .credit-count {
+            background: var(--card); padding: 0.75rem 1.5rem; border-radius: 8px;
+            border: 1px solid var(--border); font-size: 1.1rem; font-weight: bold;
+        }
+        .credit-count span { color: var(--accent); font-size: 1.3rem; margin-left: 0.5rem; }
+
+        /* ── Table ── */
+        table { width: 100%; border-collapse: collapse; background-color: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: rgba(255,255,255,0.05); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(255,255,255,0.02); }
+
+        .course-title { font-weight: bold; color: white; display: block; margin-bottom: 4px; }
+        .course-details { font-size: 0.85rem; color: var(--muted); }
+
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: bold; }
+        .badge.ENROLLED { background-color: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge.WAITLISTED { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge.DROPPED { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        button.btn-drop { padding: 8px 16px; background-color: var(--danger); color: white; border: none; border-radius: 6px; cursor: not-allowed; opacity: 0.5; font-weight: 500; }
+        #empty-state { display: none; text-align: center; padding: 3rem; background: var(--card); border-radius: 8px; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-brand">🎓 UniEnroll</div>
+
+    <div class="nav-links">
+        <a href="/student" class="nav-link {{#navCatalog}}active{{/navCatalog}}">Catalog</a>
+        <a href="/student/cart" class="nav-link {{#navCart}}active{{/navCart}}">Cart</a>
+        <a href="/enrolled.html" class="nav-link {{#navEnrolled}}active{{/navEnrolled}}">Enrolled</a>
+        <a href="/student/timetable" class="nav-link {{#navTimetable}}active{{/navTimetable}}">Timetable</a>
+    </div>
+
+    <div class="nav-profile">
+        <div class="user-greeting">👤, <span id="user-name">Loading...</span></div>
+        <form action="/logout" method="post" style="margin: 0;">
+            <button type="submit" class="btn-signout">Sign Out</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page-header">
+        <h2>My Enrollments</h2>
+        <div class="credit-count">
+            Enrolled Credits: <span id="total-credits">0</span>
+        </div>
+    </div>
+
+    <div id="empty-state">
+        <h3>No Records Found</h3>
+        <p>You have no enrolled, waitlisted, or dropped courses.</p>
+    </div>
+
+    <table id="enrolled-table" style="display: none;">
+        <thead>
+        <tr>
+            <th>Course</th>
+            <th>Credits</th>
+            <th>Schedule & Location</th>
+            <th>Professor</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // 1. Fetch User Info
+        fetch('/api/student/me')
+            .then(response => response.json())
+            .then(user => {
+                document.getElementById('user-name').textContent = `${user.firstName} ${user.lastName}`;
+            })
+            .catch(error => {
+                console.error('Error fetching user info:', error);
+                document.getElementById('user-name').textContent = "Student";
+            });
+
+        // 2. Fetch Enrolled Courses
+        fetch('/api/student/enrolled')
+            .then(response => response.json())
+            .then(sections => {
+                const table = document.getElementById('enrolled-table');
+                const emptyState = document.getElementById('empty-state');
+                const tbody = document.getElementById('table-body');
+                const totalCreditsEl = document.getElementById('total-credits');
+
+                if (!sections || sections.length === 0) {
+                    emptyState.style.display = 'block';
+                    table.style.display = 'none';
+                    return;
+                }
+
+                table.style.display = 'table';
+                emptyState.style.display = 'none';
+
+                let totalCredits = 0;
+
+                sections.forEach(section => {
+                    if(section.status === 'ENROLLED'|| section.status === 'WAITLISTED') {
+                        totalCredits += section.credits;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                            <td>
+                                <span class="course-title">${section.courseCode}</span>
+                                <span class="course-details">${section.title}</span>
+                            </td>
+                            <td><strong>${section.credits}</strong></td>
+                            <td>
+                                <div>⏱️ ${section.schedule}</div>
+                                <div class="course-details">📍 ${section.room} | 🖥️ ${section.deliveryMode}</div>
+                            </td>
+                            <td>👨‍🏫 ${section.professor}</td>
+                            <td>
+                                <span class="badge ${section.status}">${section.status}</span>
+                            </td>
+                            <td>
+                                <button class="btn-drop" disabled title="Dropping is currently disabled">Drop</button>
+                            </td>
+                        `;
+                    tbody.appendChild(tr);
+                });
+
+                totalCreditsEl.textContent = totalCredits;
+            })
+            .catch(error => console.error('Error fetching enrollments:', error));
+    });
+</script>
+</body>
+</html>

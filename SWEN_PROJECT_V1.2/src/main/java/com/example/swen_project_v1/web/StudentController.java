@@ -131,20 +131,13 @@ public class StudentController {
             enrollmentCartService.checkoutAllCartItems(authentication.getName());
             redirectAttributes.addFlashAttribute("successMessage",
                     "Successfully enrolled in all courses!");
-            return "redirect:/student/enrolled";
+            return "redirect:/enrolled.html";
         } catch (IllegalArgumentException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/student/cart";
         }
     }
 
-    @GetMapping("/student/enrolled")
-    public String studentEnrolled(Authentication authentication, Model model) {
-        populateBaseModel(authentication, model);
-        model.addAttribute("navEnrolled", true);
-        model.addAttribute("pageTitle", "Enrolled Courses");
-        return "coming-soon";
-    }
 
     @GetMapping("/student/timetable")
     public String studentTimetable(Authentication authentication, Model model) {
