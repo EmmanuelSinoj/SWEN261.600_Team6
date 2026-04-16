@@ -4,72 +4,50 @@
     <meta charset="utf-8" />
     <title>UniEnroll • Cart</title>
     <style>
-        :root{
-            --bg:#0b1220;
-            --card:#111a2e;
-            --text:#e9eefc;
-            --muted:#a9b4d0;
-            --accent:#7c5cff;
-            --accent2:#22c55e;
-            --danger:#ef4444;
-            --border:rgba(255,255,255,.10);
+        :root {
+            --bg:      #0b1220;
+            --card:    #111a2e;
+            --text:    #e9eefc;
+            --muted:   #a9b4d0;
+            --accent:  #7c5cff;
+            --accent2: #22c55e;
+            --danger:  #ef4444;
+            --warning: #f59e0b;
+            --border:  rgba(255,255,255,.10);
         }
-        *{box-sizing:border-box}
-        body{
-            margin:0;
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
             font-family: system-ui, -apple-system, sans-serif;
             background: var(--bg);
-            color:var(--text);
-            min-height:100vh;
+            color: var(--text);
+            min-height: 100vh;
         }
+
+        /* ── Navbar ── */
         .navbar {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 2rem;
             background: rgba(17,26,46,.95);
-            border-bottom:1px solid var(--border);
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
+            z-index: 10;
         }
-        .nav-brand { font-size:1.25rem; font-weight:bold; color:var(--text); text-decoration:none; }
+        .nav-brand { font-size: 1.25rem; font-weight: bold; color: var(--text); text-decoration: none; }
         .nav-brand span { color: var(--accent); }
-        .nav-links { display:flex; gap:1.5rem; }
+        .nav-links { display: flex; gap: 1.5rem; }
         .nav-link {
             color: var(--muted);
-            text-decoration:none;
-            font-size:0.95rem;
-            font-weight:500;
-            padding:0.5rem 0;
-            border-bottom:2px solid transparent;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
         }
         .nav-link.active { color: var(--text); border-bottom-color: var(--accent); }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .course-card {
-            background: rgba(17,26,46,.85);
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            margin-bottom: 1rem;
-        }
-        .course-code { color: var(--accent); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.25rem; }
-        .course-title { font-size: 1.25rem; font-weight: bold; margin: 0 0 1rem 0; }
-        .detail { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 1rem;
-        }
         .btn-logout {
             background: transparent;
             color: var(--muted);
@@ -78,6 +56,16 @@
             border-radius: 8px;
             cursor: pointer;
         }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 { margin: 0 0 1.5rem 0; }
+
+        /* ── Flash messages ── */
         .message-success {
             background: rgba(34,197,94,0.15);
             color: var(--accent2);
@@ -94,13 +82,104 @@
             border-radius: 10px;
             margin-bottom: 1rem;
         }
-        .empty {
-            text-align:center;
-            color:var(--muted);
-            padding:3rem;
+
+        /* ── Credit summary bar ── */
+        .credit-bar {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
             background: rgba(17,26,46,.85);
-            border-radius:16px;
-            border:1px solid var(--border);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.9rem 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+        }
+        .cb-item { color: var(--muted); }
+        .cb-item strong { color: var(--text); }
+        .cb-total.ok   strong { color: var(--accent2); }
+        .cb-total.over strong { color: var(--danger);  }
+
+        /* ── Warning banner ── */
+        .banner-danger {
+            background: rgba(239,68,68,0.12);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.35);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.92rem;
+        }
+
+        /* ── Course cards ── */
+        .course-card {
+            background: rgba(17,26,46,.85);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .course-code  { color: var(--accent); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .course-title { font-size: 1.2rem; font-weight: bold; margin: 0 0 0.85rem 0; }
+        .detail       { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.4rem; }
+
+        .btn-remove {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.65rem;
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+        }
+        .btn-remove:hover { background: rgba(239,68,68,0.12); }
+
+        /* ── Enroll Now footer bar ── */
+        .enroll-bar {
+            background: rgba(17,26,46,.95);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem 1.5rem;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .enroll-bar-info { font-size: 0.9rem; color: var(--muted); }
+        .enroll-bar-info strong { color: var(--text); }
+
+        .btn-enroll {
+            padding: 0.85rem 2.25rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.15s;
+        }
+        .btn-enroll:hover:not([disabled]) { background: #6b4fe0; }
+        .btn-enroll[disabled] {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 3rem;
+            background: rgba(17,26,46,.85);
+            border-radius: 16px;
+            border: 1px solid var(--border);
         }
     </style>
 </head>
@@ -110,14 +189,14 @@
     <a href="/student" class="nav-brand">Uni<span>Enroll</span></a>
 
     <div class="nav-links">
-        <a href="/student" class="nav-link {{#navCatalog}}active{{/navCatalog}}">Catalog</a>
-        <a href="/student/cart" class="nav-link {{#navCart}}active{{/navCart}}">Cart</a>
-        <a href="/student/enrolled" class="nav-link {{#navEnrolled}}active{{/navEnrolled}}">Enrolled</a>
+        <a href="/student"           class="nav-link {{#navCatalog}}active{{/navCatalog}}">Catalog</a>
+        <a href="/student/cart"      class="nav-link {{#navCart}}active{{/navCart}}">Cart</a>
+        <a href="/student/enrolled"  class="nav-link {{#navEnrolled}}active{{/navEnrolled}}">Enrolled</a>
         <a href="/student/timetable" class="nav-link {{#navTimetable}}active{{/navTimetable}}">Timetable</a>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <span style="font-size: 0.9rem; color: var(--muted);">👤 {{firstName}} {{lastName}}</span>
+    <div style="display:flex;align-items:center;gap:1rem;">
+        <span style="font-size:0.9rem;color:var(--muted);">👤 {{firstName}} {{lastName}}</span>
         <form method="post" action="/logout" style="margin:0;">
             <button class="btn-logout" type="submit">Sign Out</button>
         </form>
@@ -125,39 +204,87 @@
 </nav>
 
 <div class="container">
+
     <h1>My Enrollment Cart</h1>
 
+    {{! Flash messages }}
     {{#successMessage}}
-        <div class="message-success">{{successMessage}}</div>
+        <div class="message-success">✅ {{successMessage}}</div>
     {{/successMessage}}
-
     {{#errorMessage}}
-        <div class="message-error">{{errorMessage}}</div>
+        <div class="message-error">❌ {{errorMessage}}</div>
     {{/errorMessage}}
 
+    {{! ── Credit summary bar ──
+         hasCartItems is a boolean set in StudentController only when cartSections is non-empty.
+         This ensures the bar and enroll footer render exactly once, not once per card. }}
+    {{#hasCartItems}}
+        <div class="credit-bar">
+            <div class="cb-item">📚 Enrolled credits: <strong>{{enrolledCredits}}</strong></div>
+            <div class="cb-item">🛒 Cart credits: <strong>{{cartCredits}}</strong></div>
+            <div class="cb-item cb-total {{#overCreditLimit}}over{{/overCreditLimit}}{{^overCreditLimit}}ok{{/overCreditLimit}}">
+                ⚡ Combined total: <strong>{{combinedCredits}} / {{maxCredits}}</strong>
+            </div>
+        </div>
+    {{/hasCartItems}}
+
+    {{! ── Over-credit-limit warning banner ── }}
+    {{#overCreditLimit}}
+        <div class="banner-danger">
+            ⚠️ <strong>Credit Limit Exceeded:</strong>
+            Enrolling in your current cart would bring you to
+            <strong>{{combinedCredits}} credits</strong>, exceeding your limit of
+            <strong>{{maxCredits}} credits</strong>.
+            Remove courses until you are within the limit.
+        </div>
+    {{/overCreditLimit}}
+
+    {{! ── Course cards (one per section in cart) ── }}
     {{#cartSections}}
         <div class="course-card">
-            <div class="course-code">{{course.code}} ({{course.credits}} CR)</div>
+            <div class="course-code">{{course.code}} — {{course.credits}} CR</div>
             <h3 class="course-title">{{course.title}}</h3>
 
             <div class="detail">👨‍🏫 {{professor}}</div>
-            <div class="detail">📅 {{daysString}} {{startTime}} - {{endTime}}</div>
+            <div class="detail">📅 {{daysString}} &nbsp; {{startTime}} – {{endTime}}</div>
             <div class="detail">💻 Mode: {{deliveryMode}}</div>
-            <div class="detail">CRN: {{crn}}</div>
+            <div class="detail">🔖 CRN: {{crn}}</div>
 
             <form method="post" action="/student/cart/remove">
                 <input type="hidden" name="sectionId" value="{{id}}">
-                <button class="btn" type="submit">Remove from Cart</button>
+                <button class="btn-remove" type="submit">✕ Remove from Cart</button>
             </form>
         </div>
     {{/cartSections}}
 
+    {{! ── Empty state ── }}
     {{^cartSections}}
         <div class="empty">
             <h3>Your cart is empty</h3>
-            <p>Add courses from the catalog to see them here.</p>
+            <p>Browse the catalog and add courses to get started.</p>
         </div>
     {{/cartSections}}
+
+    {{! ── Enroll Now bar ──
+         Also guarded by hasCartItems so it renders exactly once.
+         The form posts to /student/cart/enroll-all with no body params —
+         the backend reads the cart directly from the authenticated session. }}
+    {{#hasCartItems}}
+        <div class="enroll-bar">
+            <div class="enroll-bar-info">
+                Enroll in <strong>{{cartItemCount}}</strong> course(s) &nbsp;·&nbsp;
+                <strong>{{cartCredits}}</strong> credits
+            </div>
+            <form method="post" action="/student/cart/enroll-all">
+                <button type="submit"
+                        class="btn-enroll"
+                    {{#overCreditLimit}}disabled title="Reduce your cart to {{maxCredits}} credits or below before enrolling."{{/overCreditLimit}}>
+                    🎓 Enroll Now
+                </button>
+            </form>
+        </div>
+    {{/hasCartItems}}
+
 </div>
 
 </body>
