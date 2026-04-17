@@ -56,7 +56,8 @@ public class EnrollmentCartService {
 
         // prevent full section
         if (section.isFull()) {
-            throw new IllegalArgumentException("This section is full and cannot be added.");
+            throw new IllegalArgumentException(
+                    "This section is completely full and the waitlist is closed. Cannot be added.");
         }
 
         // prevent time conflict
@@ -82,7 +83,80 @@ public class EnrollmentCartService {
         cart.removeSection(section);
         cartRepository.save(cart);
     }
+    @Transactional
+    public void dropEnrollment(String studentEmail, Long sectionId) {
+        Student student = (Student) userRepository.findByEmailIgnoreCase(studentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
+        Section section = sectionRepository.findByIdWithPessimisticLock(sectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Section not found."));
+
+        Enrollment enrollmentToDrop = enrollmentRepository.findByStudentIdAndStatus(student.getId(), EnrollmentStatus.ENROLLED)
+                .stream()
+                .filter(e -> e.getSection().getId().equals(sectionId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("You are not enrolled in this section."));
+
+        enrollmentToDrop.setStatus(EnrollmentStatus.DROPPED);
+        enrollmentRepository.save(enrollmentToDrop);
+
+        if (section.getEnrolledCount() > 0) {
+            section.setEnrolledCount(section.getEnrolledCount() - 1);
+        }
+
+        if (student.getCurrentCredits() >= section.getCourse().getCredits()) {
+            student.setCurrentCredits(student.getCurrentCredits() - section.getCourse().getCredits());
+        }
+
+        sectionRepository.saveAndFlush(section);
+        userRepository.save(student);
+
+        // Trigger US-09B automatic waitlist processing
+        processWaitlistForSection(sectionId);
+    }
+    @Transactional
+    public void processWaitlistForSection(Long sectionId) {
+        Section section = sectionRepository.findByIdWithPessimisticLock(sectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Section not found."));
+
+        if (!section.isOpen()) {
+            return;
+        }
+
+        List<Enrollment> waitlisted = enrollmentRepository
+                .findBySectionIdAndStatusOrderByEnrollmentDateAsc(sectionId, EnrollmentStatus.WAITLISTED);
+
+        for (Enrollment candidate : waitlisted) {
+            Student waitlistedStudent = candidate.getStudent();
+
+            int projectedCredits = waitlistedStudent.getCurrentCredits() + section.getCourse().getCredits();
+            if (projectedCredits > waitlistedStudent.getMaxCredits()) {
+                continue;
+            }
+
+            List<Enrollment> enrolledSections = enrollmentRepository
+                    .findByStudentIdAndStatus(waitlistedStudent.getId(), EnrollmentStatus.ENROLLED);
+
+            boolean hasConflict = enrolledSections.stream()
+                    .anyMatch(e -> e.getSection().hasTimeConflict(section));
+
+            if (hasConflict) {
+                continue;
+            }
+
+            candidate.setStatus(EnrollmentStatus.ENROLLED);
+            enrollmentRepository.save(candidate);
+
+            section.setWaitlistCount(Math.max(0, section.getWaitlistCount() - 1));
+            section.setEnrolledCount(section.getEnrolledCount() + 1);
+            sectionRepository.saveAndFlush(section);
+
+            waitlistedStudent.setCurrentCredits(waitlistedStudent.getCurrentCredits() + section.getCourse().getCredits());
+            userRepository.save(waitlistedStudent);
+
+            break;
+        }
+    }
     @Transactional
     public Cart getOrCreateCart(String studentEmail) {
         User user = userRepository.findByEmailIgnoreCase(studentEmail)
@@ -102,7 +176,7 @@ public class EnrollmentCartService {
 
     @Transactional
     public void checkoutAllCartItems(String studentEmail) {
-        // 1. Get the student
+        System.out.println("DEBUG: checkoutAllCartItems started for " + studentEmail);
         Student student = (Student) userRepository.findByEmailIgnoreCase(studentEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
@@ -113,8 +187,7 @@ public class EnrollmentCartService {
             throw new IllegalArgumentException("Your cart is empty.");
         }
 
-        // 2. Credit limit check
-        // (Note: Waitlisted courses count toward the credit limit so students don't hoard classes)
+        // 1. Credit limit check
         int cartCredits = sections.stream()
                 .mapToInt(s -> s.getCourse().getCredits())
                 .sum();
@@ -123,104 +196,77 @@ public class EnrollmentCartService {
             throw new IllegalArgumentException(
                     "Credit limit exceeded: enrolling/waitlisting in these courses would bring you to "
                             + combinedCredits + " credits, which exceeds your limit of "
-                            + student.getMaxCredits() + "."
-            );
+                            + student.getMaxCredits() + ".");
         }
 
-        // 3a. Time Conflict Checks
-        // Moved this OUTSIDE the loop so it only fetches once!
+        // 2. Time conflict checks (cart vs cart, cart vs enrolled)
         List<Enrollment> currentEnrollments = student.getEnrollments();
-
         for (int i = 0; i < sections.size(); i++) {
             Section cartSection = sections.get(i);
-
-            // -- Cart vs. Cart --
             for (int j = i + 1; j < sections.size(); j++) {
                 Section otherCartSection = sections.get(j);
                 if (cartSection.hasTimeConflict(otherCartSection)) {
                     throw new IllegalArgumentException(
-                            "Time conflict in your cart: " + cartSection.getCourse().getCode() +
-                                    " conflicts with " + otherCartSection.getCourse().getCode() + "."
-                    );
+                            "Time conflict in your cart: " + cartSection.getCourse().getCode()
+                                    + " conflicts with " + otherCartSection.getCourse().getCode() + ".");
                 }
             }
-
-            // -- Cart vs. Enrolled --
             for (Enrollment enrolled : currentEnrollments) {
                 if (cartSection.hasTimeConflict(enrolled.getSection())) {
                     throw new IllegalArgumentException(
-                            "Schedule conflict: " + cartSection.getCourse().getCode() +
-                                    " conflicts with your already enrolled class " + enrolled.getSection().getCourse().getCode() + "."
-                    );
+                            "Schedule conflict: " + cartSection.getCourse().getCode()
+                                    + " conflicts with your already enrolled class "
+                                    + enrolled.getSection().getCourse().getCode() + ".");
                 }
             }
         }
 
-        // 3b. Pre-validate capacities and duplicates
+        // 3. Lock, validate, and commit — all in ONE loop (no double-fetch)
         for (Section section : sections) {
             Section locked = sectionRepository.findByIdWithPessimisticLock(section.getId())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Section " + section.getCrn() + " no longer exists."));
 
+            // Duplicate check
             if (enrollmentRepository.existsByStudentAndSection(student, locked)) {
                 throw new IllegalArgumentException(
-                        "You are already enrolled or waitlisted in " + locked.getCourse().getCode()
-                                + " (" + locked.getCrn() + ").");
+                        "You are already enrolled or waitlisted in "
+                                + locked.getCourse().getCode() + " (" + locked.getCrn() + ").");
             }
-
             if (enrollmentRepository.isAlreadyEnrolledInCourse(student, locked.getCourse())) {
                 throw new IllegalArgumentException(
-                        "Checkout failed: You are already enrolled or waitlisted in a different section of "
+                        "You are already enrolled in a different section of "
                                 + locked.getCourse().getCode() + ".");
             }
 
-            // ---> NEW WAITLIST CHECK <---
-            if (locked.isFull()) {
-                // Check if the waitlist is also completely full
-                if (locked.getWaitlistCount() >= 10) {
-                    throw new IllegalArgumentException(
-                            locked.getCourse().getCode() + " (" + locked.getCrn()
-                                    + ") is completely full, and the waitlist is closed. Please remove it from your cart.");
-                }
-            }
-        }
-
-        // 4. All checks passed — commit every enrollment/waitlist
-        for (Section section : sections) {
-            Section locked = sectionRepository.findByIdWithPessimisticLock(section.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Section not found."));
-
-            if (locked.isFull()) {
-                // Absolute fallback: Both the class and the waitlist are maxed out
+            // Waitlist-closed check
+            if (locked.isSeatFull() && locked.getWaitlistCount() >= Section.WAITLIST_CAP) {
                 throw new IllegalArgumentException(
-                        locked.getCourse().getCode() + " and its waitlist are completely full."
-                );
+                        locked.getCourse().getCode() + " (" + locked.getCrn()
+                                + ") is completely full and the waitlist is closed. Please remove it from your cart.");
             }
 
+            // Determine status and update counts
             EnrollmentStatus finalStatus;
-
             if (locked.isOpen() && locked.getWaitlistCount() == 0) {
-                // 1. There are seats AND nobody is waiting in line
                 locked.setEnrolledCount(locked.getEnrolledCount() + 1);
                 finalStatus = EnrollmentStatus.ENROLLED;
-
             } else {
-                // 2. Class is either full (isWaitlist() == true) OR there is an open seat but a line exists
                 locked.setWaitlistCount(locked.getWaitlistCount() + 1);
                 finalStatus = EnrollmentStatus.WAITLISTED;
             }
 
-            sectionRepository.save(locked);
+            sectionRepository.saveAndFlush(locked); // <-- saveAndFlush, not just save
 
-            // Create the official Enrollment record with the correct status
             Enrollment enrollment = new Enrollment(student, locked, finalStatus);
             enrollmentRepository.save(enrollment);
 
             cart.removeSection(section);
         }
 
-        // 5. Update student's current credit count and clear the cart
+        // 4. Update student credits and save cart
         student.setCurrentCredits(student.getCurrentCredits() + cartCredits);
+        userRepository.save(student);   // <-- also save the student!
         cartRepository.save(cart);
     }
 }
