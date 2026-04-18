@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniEnroll • Timetable</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --panel: #0f1730;
+            --header: #1a2342;
+            --cell: #0d173b;
+            --text: #e9eefc;
+            --muted: #a9b4d0;
+            --accent: #7c5cff;
+            --border: rgba(255,255,255,.10);
+            --row-height: 62px;
+            --time-col-width: 120px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(17,26,46,.95);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: 600;
+        }
+
+        .nav-links .active {
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.3rem;
+        }
+
+        .schedule-shell {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            background: var(--panel);
+        }
+
+        .schedule-header {
+            display: grid;
+            grid-template-columns: var(--time-col-width) repeat(5, 1fr);
+            background: var(--header);
+        }
+
+        .schedule-header div {
+            padding: 18px 10px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 800;
+            border-right: 1px solid var(--border);
+        }
+
+        .schedule-header div:last-child {
+            border-right: none;
+        }
+
+        .schedule-body {
+            display: grid;
+            grid-template-columns: var(--time-col-width) repeat(5, 1fr);
+        }
+
+        .time-col {
+            background: var(--header);
+            border-right: 1px solid var(--border);
+        }
+
+        .time-slot {
+            height: var(--row-height);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a9c2ff;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .day-column {
+            position: relative;
+            border-right: 1px solid var(--border);
+            background-color: var(--cell);
+            background-image: linear-gradient(to bottom, rgba(255,255,255,.08) 1px, transparent 1px);
+            background-size: 100% var(--row-height);
+        }
+
+        .day-column:last-child {
+            border-right: none;
+        }
+
+        .course-block {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: white;
+            font-size: 0.95rem;
+            box-shadow: 0 6px 16px rgba(0,0,0,.28);
+            border: 1px solid rgba(255,255,255,.10);
+            overflow: hidden;
+        }
+
+        .course-code {
+            font-weight: 900;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .course-time {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .muted {
+            color: rgba(255,255,255,0.86);
+            line-height: 1.25;
+        }
+
+        .empty-message {
+            margin-top: 1.5rem;
+            color: var(--muted);
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-brand">🎓 UniEnroll</div>
+
+    <div class="nav-links">
+        <a href="/student">Catalog</a>
+        <a href="/student/cart">Cart</a>
+        <a href="/enrolled.html">Enrolled</a>
+        <a href="/timetable.html" class="active">Timetable</a>
+    </div>
+
+    <div>
+        <span id="studentName">Student</span>
+        <form action="/logout" method="post" style="display:inline; margin-left: 10px;">
+            <button type="submit">Sign Out</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <h1>My Weekly Timetable</h1>
+
+    <div class="schedule-shell">
+        <div class="schedule-header">
+            <div></div>
+            <div>Monday</div>
+            <div>Tuesday</div>
+            <div>Wednesday</div>
+            <div>Thursday</div>
+            <div>Friday</div>
+        </div>
+
+        <div class="schedule-body" id="scheduleBody">
+            <div class="time-col" id="timeColumn"></div>
+            <div class="day-column" data-day="MON"></div>
+            <div class="day-column" data-day="TUE"></div>
+            <div class="day-column" data-day="WED"></div>
+            <div class="day-column" data-day="THU"></div>
+            <div class="day-column" data-day="FRI"></div>
+        </div>
+    </div>
+
+    <div id="empty-message" class="empty-message">
+        No enrolled or waitlisted sections to display.
+    </div>
+</div>
+
+<script>
+    const startHour = 8;
+    const endHour = 17;
+    const intervalMinutes = 30;
+
+    const timeColumn = document.getElementById("timeColumn");
+    const scheduleBody = document.getElementById("scheduleBody");
+    const emptyMessage = document.getElementById("empty-message");
+
+    const courseColors = {};
+    const palette = [
+        "#22c55e",
+        "#3b82f6",
+        "#f59e0b",
+        "#ef4444",
+        "#a855f7",
+        "#14b8a6",
+        "#f97316",
+        "#e11d48",
+        "#06b6d4",
+        "#84cc16"
+    ];
+
+    function getCourseColor(courseCode) {
+        if (!courseColors[courseCode]) {
+            const index = Object.keys(courseColors).length % palette.length;
+            courseColors[courseCode] = palette[index];
+        }
+        return courseColors[courseCode];
+    }
+
+    function pad(n) {
+        return String(n).padStart(2, "0");
+    }
+
+    function formatTimeLabel(totalMinutes) {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${pad(h)}:${pad(m)}`;
+    }
+
+    function timeToMinutes(timeStr) {
+        const [h, m] = timeStr.substring(0, 5).split(":").map(Number);
+        return h * 60 + m;
+    }
+
+    function buildTimeColumn() {
+        timeColumn.innerHTML = "";
+
+        const startMinutes = startHour * 60;
+        const endMinutes = endHour * 60;
+        const totalRows = (endMinutes - startMinutes) / intervalMinutes;
+
+        const rowHeight = parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue("--row-height")
+        );
+
+        document.querySelectorAll(".day-column").forEach(col => {
+            col.style.height = `${totalRows * rowHeight}px`;
+        });
+
+        for (let t = startMinutes; t < endMinutes; t += intervalMinutes) {
+            const slot = document.createElement("div");
+            slot.className = "time-slot";
+            slot.textContent = formatTimeLabel(t);
+            timeColumn.appendChild(slot);
+        }
+    }
+
+    function createBlock(section) {
+        const block = document.createElement("div");
+        block.className = "course-block";
+        block.style.backgroundColor = getCourseColor(section.courseCode);
+
+        block.innerHTML = `
+            <div class="course-code">${section.courseCode}</div>
+            <div class="course-time">${section.startTime.substring(0,5)} - ${section.endTime.substring(0,5)}</div>
+            <div class="muted">${section.room}</div>
+            <div class="muted">${section.professor}</div>
+        `;
+
+        return block;
+    }
+
+    function placeSections(sections) {
+        if (!sections || sections.length === 0) {
+            emptyMessage.style.display = "block";
+            return;
+        }
+
+        const rowHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--row-height"));
+        const startMinutes = startHour * 60;
+
+        sections.forEach(section => {
+            const sectionStart = timeToMinutes(section.startTime);
+            const sectionEnd = timeToMinutes(section.endTime);
+
+            const top = ((sectionStart - startMinutes) / intervalMinutes) * rowHeight;
+            const height = ((sectionEnd - sectionStart) / intervalMinutes) * rowHeight;
+
+            section.days.forEach(day => {
+                const dayColumn = document.querySelector(`.day-column[data-day="${day}"]`);
+                if (!dayColumn) return;
+
+                const block = createBlock(section);
+                block.style.top = `${top + 8}px`;
+                block.style.height = `${Math.max(height - 12, 48)}px`;
+                dayColumn.appendChild(block);
+            });
+        });
+    }
+
+    buildTimeColumn();
+
+    fetch('/api/student/timetable')
+        .then(response => response.json())
+        .then(data => placeSections(data))
+        .catch(error => {
+            console.error("Failed to load timetable:", error);
+            emptyMessage.style.display = "block";
+            emptyMessage.textContent = "Failed to load timetable.";
+        });
+</script>
+
+</body>
+</html>

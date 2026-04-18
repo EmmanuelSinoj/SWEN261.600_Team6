@@ -152,12 +152,4 @@ public class StudentController {
         }
     }
 
-
-    @GetMapping("/student/timetable")
-    public String studentTimetable(Authentication authentication, Model model) {
-        populateBaseModel(authentication, model);
-        model.addAttribute("navTimetable", true);
-        model.addAttribute("pageTitle", "My Timetable");
-        return "coming-soon";
-    }
 }
