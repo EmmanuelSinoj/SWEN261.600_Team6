@@ -15,11 +15,16 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final SectionRepository sectionRepository;
     private final UserRepository userRepository;
+    private final WaitlistProcessingService waitlistProcessingService;
 
-    public CourseService(CourseRepository courseRepository, SectionRepository sectionRepository, UserRepository userRepository) {
+    public CourseService(CourseRepository courseRepository,
+                         SectionRepository sectionRepository,
+                         UserRepository userRepository,
+                         WaitlistProcessingService waitlistProcessingService) {
         this.courseRepository = courseRepository;
         this.sectionRepository = sectionRepository;
         this.userRepository = userRepository;
+        this.waitlistProcessingService = waitlistProcessingService;
     }
 
     // Course operations
@@ -190,6 +195,7 @@ public class CourseService {
                                  DeliveryMode deliveryMode) {
 
         Section section = getSectionById(sectionId);
+        int oldCapacity = section.getCapacity();
 
         // Validation: capacity > 0 and <= 30
         if (capacity <= 0) {
@@ -239,8 +245,13 @@ public class CourseService {
         section.setProfessor(professor);
         section.setDeliveryMode(deliveryMode != null ? deliveryMode : DeliveryMode.IN_PERSON);
 
-        return sectionRepository.save(section);
-    }
+        Section saved = sectionRepository.save(section);
+
+        if (capacity > oldCapacity) {
+            waitlistProcessingService.processWaitlistForSection(saved.getId());
+        }
+
+        return saved;    }
 
     @Transactional
     public void deleteSection(Long sectionId) {

@@ -67,7 +67,25 @@
         .badge.WAITLISTED { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge.DROPPED { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
 
-        button.btn-drop { padding: 8px 16px; background-color: var(--danger); color: white; border: none; border-radius: 6px; cursor: not-allowed; opacity: 0.5; font-weight: 500; }
+        button.btn-drop {
+            padding: 8px 16px;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 1;
+            font-weight: 500;
+        }button.btn-drop {
+             padding: 8px 16px;
+             background-color: var(--danger);
+             color: white;
+             border: none;
+             border-radius: 6px;
+             cursor: pointer;
+             opacity: 1;
+             font-weight: 500;
+         }
         #empty-state { display: none; text-align: center; padding: 3rem; background: var(--card); border-radius: 8px; color: var(--muted); }
     </style>
 </head>
@@ -175,7 +193,10 @@
                                 <span class="badge ${section.status}">${section.status}</span>
                             </td>
                             <td>
-                                <button class="btn-drop" disabled title="Dropping is currently disabled">Drop</button>
+                                <form method="post" action="/student/drop" style="margin:0;">
+                                    <input type="hidden" name="sectionId" value="${section.sectionId}">
+                                    <button class="btn-drop" type="submit">Drop</button>
+                                </form>
                             </td>
                         `;
                     tbody.appendChild(tr);
