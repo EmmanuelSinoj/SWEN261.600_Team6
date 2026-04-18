@@ -80,6 +80,19 @@ public class StudentController {
         return "redirect:/student";
     }
 
+    @PostMapping("/student/drop")
+    public String dropSection(@RequestParam Long sectionId,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            enrollmentCartService.dropEnrollment(authentication.getName(), sectionId);
+            redirectAttributes.addFlashAttribute("successMessage", "Section dropped successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/enrolled.html";
+    }
+
     @GetMapping("/student/cart")
     public String studentCart(Authentication authentication, Model model) {
         populateBaseModel(authentication, model);
@@ -127,11 +140,12 @@ public class StudentController {
     @PostMapping("/student/cart/enroll-all")
     public String enrollAll(Authentication authentication,
                             RedirectAttributes redirectAttributes) {
+        System.out.println("DEBUG: StudentController.enrollAll hit for " + authentication.getName());
         try {
             enrollmentCartService.checkoutAllCartItems(authentication.getName());
             redirectAttributes.addFlashAttribute("successMessage",
                     "Successfully enrolled in all courses!");
-            return "redirect:/enrolled.html";
+            return "redirect:/enrolled";
         } catch (IllegalArgumentException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/student/cart";

@@ -92,14 +92,18 @@ public class Section {
     public int getWaitlistCount() { return waitlistCount; }
     public void setWaitlistCount(int waitlistCount) { this.waitlistCount = waitlistCount; }
 
+    public boolean isSeatFull() {
+        return this.enrolledCount >= this.capacity;
+    }
+
+    // Is EVERYTHING full — seats AND waitlist? (no room at all)
+    public boolean isFull() {
+        return this.enrolledCount >= this.capacity && this.waitlistCount >= WAITLIST_CAP;
+    }
     public boolean isOpen() {
         return this.enrolledCount < this.capacity;
     }
 
-
-    public boolean isFull() {
-        return this.enrolledCount >= this.capacity && this.waitlistCount >= WAITLIST_CAP;
-    }
 
     public boolean isWaitlist() {
         return this.enrolledCount >= this.capacity && this.waitlistCount < WAITLIST_CAP;

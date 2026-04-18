@@ -12,7 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,15 +22,19 @@ public class StudentService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SectionRepository sectionRepository;
+    private final WaitlistProcessingService waitlistProcessingService;
 
     // Constructor Injection
     public StudentService(StudentRepository studentRepository,
                           UserRepository userRepository,
-                          PasswordEncoder passwordEncoder, SectionRepository sectionRepository) {
+                          PasswordEncoder passwordEncoder,
+                          SectionRepository sectionRepository,
+                          WaitlistProcessingService waitlistProcessingService) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sectionRepository = sectionRepository;
+        this.waitlistProcessingService = waitlistProcessingService;
     }
 
     public List<Student> getAllStudents() {
@@ -106,14 +110,16 @@ public class StudentService {
     public Student deleteStudent(Long id) {
         Student student = getStudentById(id);
 
+        // Collect the IDs of sections where this student was ENROLLED (seats being freed)
+        List<Long> freedSectionIds = new ArrayList<>();
+
         for (Enrollment enrollment : student.getEnrollments()) {
-            // FIX: Fetch the locked version of the section from the DB!
-            // Do not just rely on enrollment.getSection() which might have stale data.
             Section lockedSection = sectionRepository.findByIdWithPessimisticLock(enrollment.getSection().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Section not found."));
 
             if (enrollment.getStatus() == EnrollmentStatus.ENROLLED) {
                 lockedSection.setEnrolledCount(lockedSection.getEnrolledCount() - 1);
+                freedSectionIds.add(lockedSection.getId()); // a seat just opened
             } else if (enrollment.getStatus() == EnrollmentStatus.WAITLISTED) {
                 lockedSection.setWaitlistCount(lockedSection.getWaitlistCount() - 1);
             }
@@ -121,7 +127,14 @@ public class StudentService {
             sectionRepository.save(lockedSection);
         }
 
+        // Delete the student FIRST (removes their enrollments from the waitlist)
         studentRepository.deleteById(id);
+
+        // NOW process the waitlist for each freed seat
+        for (Long sectionId : freedSectionIds) {
+            waitlistProcessingService.processWaitlistForSection(sectionId);
+        }
+
         return student;
     }
 }
