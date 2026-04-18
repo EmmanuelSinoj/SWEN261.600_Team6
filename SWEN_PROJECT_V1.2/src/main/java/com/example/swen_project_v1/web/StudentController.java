@@ -145,7 +145,7 @@ public class StudentController {
             enrollmentCartService.checkoutAllCartItems(authentication.getName());
             redirectAttributes.addFlashAttribute("successMessage",
                     "Successfully enrolled in all courses!");
-            return "redirect:/enrolled";
+            return "redirect:/enrolled.html";
         } catch (IllegalArgumentException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/student/cart";
