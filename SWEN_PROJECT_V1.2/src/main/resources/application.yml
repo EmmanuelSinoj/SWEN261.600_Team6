@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/unienroll
     username: root
-    password: abc12345
+    password: root
   jpa:
     hibernate:
       ddl-auto: update

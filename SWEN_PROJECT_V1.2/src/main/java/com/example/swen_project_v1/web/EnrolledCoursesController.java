@@ -1,5 +1,7 @@
 package com.example.swen_project_v1.web;
 
+import com.example.swen_project_v1.course.TimetableBlockDTO;
+import com.example.swen_project_v1.course.EnrollmentStatus;
 import com.example.swen_project_v1.auth.Student;
 import com.example.swen_project_v1.auth.StudentRepository;
 import com.example.swen_project_v1.course.Course;
@@ -67,6 +69,41 @@ public class EnrolledCoursesController {
                 "firstName", student.getFirstName(),
                 "lastName", student.getLastName()
         );
+    }
+
+
+    @GetMapping("/timetable")
+    public List<TimetableBlockDTO> getTimetable(Authentication authentication) {
+        String studentEmail = authentication.getName();
+
+        Student student = studentRepository.findByEmailIgnoreCase(studentEmail)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        return student.getEnrollments().stream()
+                .filter(enrollment ->
+                        enrollment.getStatus() == EnrollmentStatus.ENROLLED ||
+                                enrollment.getStatus() == EnrollmentStatus.WAITLISTED)
+                .map(enrollment -> {
+                    Section section = enrollment.getSection();
+                    Course course = section.getCourse();
+
+                    List<String> days = section.getDays().stream()
+                            .map(Enum::name)
+                            .toList();
+
+                    return new TimetableBlockDTO(
+                            course.getCode(),
+                            course.getTitle(),
+                            section.getProfessor(),
+                            section.getRoom(),
+                            section.getDeliveryMode().name(),
+                            enrollment.getStatus().name(),
+                            section.getStartTime().toString(),
+                            section.getEndTime().toString(),
+                            days
+                    );
+                })
+                .toList();
     }
 
 }
