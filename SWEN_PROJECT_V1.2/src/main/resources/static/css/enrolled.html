@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enrolled Courses</title>
+</head>
+<body>
+
+<h2>My Enrolled Courses</h2>
+
+<p>Total Credits: <span id="total-credits">0</span></p>
+
+<p id="feedback-message" style="color: green;"></p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Course</th>
+        <th>Credits</th>
+        <th>Professor</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody id="table-body"></tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const tbody = document.getElementById('table-body');
+        const totalCreditsEl = document.getElementById('total-credits');
+
+        function showMessage(message) {
+            document.getElementById('feedback-message').innerText = message;
+        }
+
+        function dropSection(sectionId, row, credits) {
+            fetch(`/api/student/enrolled/${sectionId}/drop`, {
+                method: 'DELETE'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success === "true") {
+                        row.remove();
+
+                        let currentCredits = parseInt(totalCreditsEl.innerText) || 0;
+                        totalCreditsEl.innerText = Math.max(0, currentCredits - credits);
+
+                        showMessage(data.message);
+                    } else {
+                        showMessage(data.message);
+                    }
+                })
+                .catch(() => {
+                    showMessage("Error dropping course");
+                });
+        }
+
+        fetch('/api/student/enrolled')
+            .then(res => res.json())
+            .then(sections => {
+
+                let totalCredits = 0;
+
+                sections.forEach(section => {
+
+                    if (section.status === "ENROLLED") {
+                        totalCredits += section.credits;
+                    }
+
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                    <td>${section.courseCode} - ${section.title}</td>
+                    <td>${section.credits}</td>
+                    <td>${section.professor}</td>
+                    <td>${section.status}</td>
+                    <td>
+                        ${section.status === "ENROLLED"
+                        ? `<button onclick="dropSection(${section.sectionId}, this.parentElement.parentElement, ${section.credits})">Drop</button>`
+                        : '-'}
+                    </td>
+                `;
+
+                    tbody.appendChild(row);
+                });
+
+                totalCreditsEl.innerText = totalCredits;
+            });
+
+        window.dropSection = dropSection;
+    });
+</script>
+
+</body>
+</html>
