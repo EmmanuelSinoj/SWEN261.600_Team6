@@ -1,6 +1,7 @@
 package com.example.swen_project_v1.course;
 
 public class EnrolledSectionDTO {
+    private Long sectionId;
     private String courseCode;
     private String title;
     private String professor;
@@ -11,7 +12,8 @@ public class EnrolledSectionDTO {
     private String room;
     private String deliveryMode;
 
-    public EnrolledSectionDTO(String courseCode, String title, String professor, String schedule, int credits, String status, String room, String deliveryMode) {
+    public EnrolledSectionDTO(Long sectionId, String courseCode, String title, String professor, String schedule, int credits, String status, String room, String deliveryMode) {
+        this.sectionId = sectionId;
         this.courseCode = courseCode;
         this.title = title;
         this.professor = professor;
@@ -23,6 +25,7 @@ public class EnrolledSectionDTO {
     }
 
     // Getters are required for Spring Boot to convert this to JSON
+    public Long getSectionId() { return sectionId; }
     public String getCourseCode() { return courseCode; }
     public String getTitle() { return title; }
     public String getProfessor() { return professor; }

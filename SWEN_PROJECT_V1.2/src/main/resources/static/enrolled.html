@@ -173,7 +173,7 @@
                 let totalCredits = 0;
 
                 sections.forEach(section => {
-                    if(section.status === 'ENROLLED'|| section.status === 'WAITLISTED') {
+                    if(section.status === 'ENROLLED' || section.status === 'WAITLISTED') {
                         totalCredits += section.credits;
                     }
 
@@ -193,10 +193,7 @@
                                 <span class="badge ${section.status}">${section.status}</span>
                             </td>
                             <td>
-                                <form method="post" action="/student/drop" style="margin:0;">
-                                    <input type="hidden" name="sectionId" value="${section.sectionId}">
-                                    <button class="btn-drop" type="submit">Drop</button>
-                                </form>
+                                <button class="btn-drop" data-section-id="${section.sectionId}">Drop</button>
                             </td>
                         `;
                     tbody.appendChild(tr);
@@ -205,6 +202,42 @@
                 totalCreditsEl.textContent = totalCredits;
             })
             .catch(error => console.error('Error fetching enrollments:', error));
+
+        // 3. Event Delegation for the Drop buttons
+        document.getElementById('table-body').addEventListener('click', (event) => {
+            // Check if the clicked element is our drop button
+            if (event.target.classList.contains('btn-drop')) {
+                const sectionId = event.target.getAttribute('data-section-id');
+                const rowElement = event.target.closest('tr'); // Get the parent row
+                dropCourse(sectionId, rowElement);
+            }
+        });
+
+        // 4. Drop Course Function
+        function dropCourse(sectionId, rowElement) {
+            // Added a quick confirmation so students don't misclick and drop a class!
+            if (!confirm("Are you sure you want to drop this course?")) return;
+
+            // Fixed the missing backticks in the URL
+            fetch(`/api/student/enrolled/${sectionId}/drop`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Checking for both boolean and string just in case
+                    if (data.success === true || data.success === "true") {
+                        rowElement.remove();
+                        alert("Course dropped successfully");
+                        location.reload(); // Optional: remove this if you want it to feel more seamless
+                    } else {
+                        alert(data.message || "Failed to drop course");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Failed to drop course");
+                });
+        }
     });
 </script>
 </body>
