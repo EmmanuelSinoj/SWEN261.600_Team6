@@ -91,19 +91,31 @@ public class EnrollmentCartService {
         Section section = sectionRepository.findByIdWithPessimisticLock(sectionId)
                 .orElseThrow(() -> new IllegalArgumentException("Section not found."));
 
-        Enrollment enrollmentToDrop = enrollmentRepository.findByStudentIdAndStatus(student.getId(), EnrollmentStatus.ENROLLED)
-                .stream()
+        // Find the active enrollment (either ENROLLED or WAITLISTED)
+        Enrollment enrollmentToDrop = student.getEnrollments().stream()
                 .filter(e -> e.getSection().getId().equals(sectionId))
+                .filter(e -> e.getStatus() == EnrollmentStatus.ENROLLED || e.getStatus() == EnrollmentStatus.WAITLISTED)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("You are not enrolled in this section."));
+                .orElseThrow(() -> new IllegalArgumentException("You are not enrolled or waitlisted in this section."));
+
+        // Keep track of their status before we change it to DROPPED
+        EnrollmentStatus originalStatus = enrollmentToDrop.getStatus();
 
         enrollmentToDrop.setStatus(EnrollmentStatus.DROPPED);
         enrollmentRepository.save(enrollmentToDrop);
 
-        if (section.getEnrolledCount() > 0) {
-            section.setEnrolledCount(section.getEnrolledCount() - 1);
+        // Decrement the appropriate counter based on what they just dropped
+        if (originalStatus == EnrollmentStatus.ENROLLED) {
+            if (section.getEnrolledCount() > 0) {
+                section.setEnrolledCount(section.getEnrolledCount() - 1);
+            }
+        } else if (originalStatus == EnrollmentStatus.WAITLISTED) {
+            if (section.getWaitlistCount() > 0) {
+                section.setWaitlistCount(section.getWaitlistCount() - 1);
+            }
         }
 
+        // Refund the credits (since checkoutAllCartItems charges credits for both waitlisted and enrolled courses)
         if (student.getCurrentCredits() >= section.getCourse().getCredits()) {
             student.setCurrentCredits(student.getCurrentCredits() - section.getCourse().getCredits());
         }
@@ -112,7 +124,10 @@ public class EnrollmentCartService {
         userRepository.save(student);
 
         // Trigger US-09B automatic waitlist processing
-        processWaitlistForSection(sectionId);
+        // Note: We only need to process the waitlist if an ENROLLED student dropped, opening up a seat!
+        if (originalStatus == EnrollmentStatus.ENROLLED) {
+            processWaitlistForSection(sectionId);
+        }
     }
     @Transactional
     public void processWaitlistForSection(Long sectionId) {
