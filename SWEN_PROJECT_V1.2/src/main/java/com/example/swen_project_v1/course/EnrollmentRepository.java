@@ -9,9 +9,10 @@ import java.util.List;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
-    boolean existsByStudentAndSection(Student student, Section section);
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Enrollment e WHERE e.student = :student AND e.section = :section AND e.status != com.example.swen_project_v1.course.EnrollmentStatus.DROPPED")
+    boolean existsByStudentAndSection(@Param("student") Student student, @Param("section") Section section);
 
-    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Enrollment e WHERE e.student = :student AND e.section.course = :course")
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Enrollment e WHERE e.student = :student AND e.section.course = :course AND e.status != com.example.swen_project_v1.course.EnrollmentStatus.DROPPED")
     boolean isAlreadyEnrolledInCourse(@Param("student") Student student, @Param("course") Course course);
 
     // --- NEW: needed for US-09B ---

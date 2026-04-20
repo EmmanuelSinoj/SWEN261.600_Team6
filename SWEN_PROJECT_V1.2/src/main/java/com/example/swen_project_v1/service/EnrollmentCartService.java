@@ -200,8 +200,10 @@ public class EnrollmentCartService {
         }
 
         // 2. Time conflict checks (cart vs cart, cart vs enrolled)
-        List<Enrollment> currentEnrollments = student.getEnrollments();
-        for (int i = 0; i < sections.size(); i++) {
+        // AFTER
+        List<Enrollment> currentEnrollments = student.getEnrollments().stream()
+                .filter(e -> e.getStatus() == EnrollmentStatus.ENROLLED || e.getStatus() == EnrollmentStatus.WAITLISTED)
+                .toList();        for (int i = 0; i < sections.size(); i++) {
             Section cartSection = sections.get(i);
             for (int j = i + 1; j < sections.size(); j++) {
                 Section otherCartSection = sections.get(j);
