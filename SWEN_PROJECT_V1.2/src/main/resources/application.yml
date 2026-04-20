@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mariadb://127.0.0.1:3306/unienroll
-    username: swenapp
-    password: student12345
+    username: root
+    password: student@123
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:

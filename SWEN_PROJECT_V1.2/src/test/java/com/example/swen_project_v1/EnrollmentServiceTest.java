@@ -186,10 +186,6 @@ class EnrollmentServiceTest {
         assertTrue(exception.getMessage().contains("completely full, and the waitlist is closed"));
     }
 
-    // ==========================================
-    // ✅ SUCCESS SCENARIOS (HAPPY PATHS)
-    // ==========================================
-
     @Test
     void checkout_DirectEnrollment_Success() {
         Section section = createMockSection(1L, 3, "CSCI101");
