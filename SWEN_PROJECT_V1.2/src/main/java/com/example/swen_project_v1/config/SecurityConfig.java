@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/post-login").authenticated()
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMINISTRATOR")
                         .requestMatchers("/admin/courses", "/admin/courses/**", "/admin/sections/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers("/student", "/student/**").hasRole("STUDENT")
+                        .requestMatchers("/student", "/student/**", "/api/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated()
 
                 )
