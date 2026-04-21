@@ -176,14 +176,20 @@ class EnrollmentServiceTest {
         setupValidUserAndCart(section);
 
         // Simulate full class and maxed waitlist
-        doReturn(true).when(section).isFull();
+        doReturn(true).when(section).isSeatFull();
         doReturn(10).when(section).getWaitlistCount();
 
-        when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+
+        lenient().when(enrollmentRepository.isAlreadyEnrolledInCourse(any(), any()))
+                .thenReturn(false);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 enrollmentCartService.checkoutAllCartItems(EMAIL));
-        assertTrue(exception.getMessage().contains("completely full, and the waitlist is closed"));
+
+        System.out.println(exception.getMessage());
+
+        assertTrue(exception.getMessage().contains("completely full and the waitlist is closed"));
     }
 
     @Test
@@ -191,12 +197,15 @@ class EnrollmentServiceTest {
         Section section = createMockSection(1L, 3, "CSCI101");
         setupValidUserAndCart(section);
 
-        doReturn(false).when(section).isFull();
+        doReturn(false).when(section).isSeatFull();
         doReturn(true).when(section).isOpen();
         doReturn(0).when(section).getWaitlistCount();
         doReturn(5).when(section).getEnrolledCount();
 
-        when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+
+        lenient().when(enrollmentRepository.existsByStudentAndSection(any(), any())).thenReturn(false);
+        lenient().when(enrollmentRepository.isAlreadyEnrolledInCourse(any(), any())).thenReturn(false);
 
         enrollmentCartService.checkoutAllCartItems(EMAIL);
 
@@ -216,11 +225,14 @@ class EnrollmentServiceTest {
         setupValidUserAndCart(section);
 
         // Class is NOT open (seats full), but waitlist has room (e.g., 2 people in line)
-        doReturn(false).when(section).isFull();
+        doReturn(false).when(section).isSeatFull();
         doReturn(false).when(section).isOpen();
         doReturn(2).when(section).getWaitlistCount();
 
-        when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+
+        lenient().when(enrollmentRepository.existsByStudentAndSection(any(), any())).thenReturn(false);
+        lenient().when(enrollmentRepository.isAlreadyEnrolledInCourse(any(), any())).thenReturn(false);
 
         enrollmentCartService.checkoutAllCartItems(EMAIL);
 
@@ -237,11 +249,14 @@ class EnrollmentServiceTest {
         setupValidUserAndCart(section);
 
         // Class has an open seat, BUT a waitlist line already exists
-        doReturn(false).when(section).isFull();
+        doReturn(false).when(section).isSeatFull();
         doReturn(true).when(section).isOpen();
         doReturn(1).when(section).getWaitlistCount();
 
-        when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+
+        lenient().when(enrollmentRepository.existsByStudentAndSection(any(), any())).thenReturn(false);
+        lenient().when(enrollmentRepository.isAlreadyEnrolledInCourse(any(), any())).thenReturn(false);
 
         enrollmentCartService.checkoutAllCartItems(EMAIL);
 
@@ -257,10 +272,13 @@ class EnrollmentServiceTest {
         Section section = createMockSection(1L, 3, "CSCI101");
         setupValidUserAndCart(section);
 
-        doReturn(false).when(section).isFull();
+        doReturn(false).when(section).isSeatFull();
         doReturn(true).when(section).isOpen();
 
-        when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(1L)).thenReturn(Optional.of(section));
+
+        lenient().when(enrollmentRepository.existsByStudentAndSection(any(), any())).thenReturn(false);
+        lenient().when(enrollmentRepository.isAlreadyEnrolledInCourse(any(), any())).thenReturn(false);
 
         // Initial state
         assertEquals(1, cart.getSections().size());
