@@ -151,7 +151,6 @@ public class EnrollmentCartService {
             section.setEnrolledCount(section.getEnrolledCount() + 1);
             sectionRepository.saveAndFlush(section);
 
-            waitlistedStudent.setCurrentCredits(waitlistedStudent.getCurrentCredits() + section.getCourse().getCredits());
             userRepository.save(waitlistedStudent);
 
             break;
