@@ -238,4 +238,8 @@ Implement core user functionalities including login, logout and role based redir
   https://docs.google.com/spreadsheets/d/1DwKVT0ptUckvCwcQvSxi3y6QgkCcqvNV6qVV8ap2Cvw 
 
 - **Canva Presentation Link:**  
-  https://canva.link/4qgj6faffunj5zp 
+  https://canva.link/4qgj6faffunj5zp
+
+- **Project Report Google Document Link:**
+  https://docs.google.com/document/d/1Cxk6cWCD67c5Q7ZOBKpLVhN8O57DXQ_dIg-n9EWHFF4/edit?usp=sharing
+
