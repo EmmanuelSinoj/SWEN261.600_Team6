@@ -235,4 +235,7 @@ Implement core user functionalities including login, logout and role based redir
   https://docs.google.com/document/d/1jg0YROrAA-XOZv-E0-FpQozw2gaLYb8TqP4JL_sXltU  
 
 - **Traceability Matrix:**  
-  https://docs.google.com/spreadsheets/d/1DwKVT0ptUckvCwcQvSxi3y6QgkCcqvNV6qVV8ap2Cvw  
+  https://docs.google.com/spreadsheets/d/1DwKVT0ptUckvCwcQvSxi3y6QgkCcqvNV6qVV8ap2Cvw 
+
+- **Canva Presentation Link:**  
+  https://canva.link/4qgj6faffunj5zp 
