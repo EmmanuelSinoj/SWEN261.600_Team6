@@ -240,11 +240,11 @@ class US08A_CartValidationTest {
         }
 
         @Test
-        @DisplayName("AC-5: On success → redirect to /student/enrolled")
+        @DisplayName("AC-5: On success → redirect to /enrolled.html")
         void enrollAll_successRedirectsToEnrolled() {
             String redirect = studentController.enrollAll(authentication, redirectAttributes);
 
-            assertThat(redirect).isEqualTo("redirect:/student/enrolled");
+            assertThat(redirect).isEqualTo("redirect:/enrolled.html");
         }
 
         @Test
