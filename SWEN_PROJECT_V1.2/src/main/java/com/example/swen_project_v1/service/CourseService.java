@@ -248,7 +248,8 @@ public class CourseService {
         Section saved = sectionRepository.save(section);
 
         if (capacity > oldCapacity) {
-            waitlistProcessingService.processWaitlistForSection(saved.getId());
+            for(int i = 0; i < (capacity - oldCapacity); i++){
+                waitlistProcessingService.processWaitlistForSection(saved.getId());}
         }
 
         return saved;    }

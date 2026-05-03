@@ -22,12 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class US09ADropCourseTest {
@@ -66,25 +61,25 @@ class US09ADropCourseTest {
 
     @Test
     void dropEnrollment_success() {
-        when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
-        when(student.getId()).thenReturn(STUDENT_ID);
+        lenient().when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
+        lenient().when(student.getId()).thenReturn(STUDENT_ID);
 
-        when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
                 .thenReturn(Optional.of(section));
 
-        when(enrollmentRepository.findByStudentIdAndStatus(STUDENT_ID, EnrollmentStatus.ENROLLED))
-                .thenReturn(List.of(enrollment));
+        when(student.getEnrollments()).thenReturn(List.of(enrollment));
+        when(enrollment.getStatus()).thenReturn(EnrollmentStatus.ENROLLED);
 
-        when(enrollment.getSection()).thenReturn(section);
-        when(section.getId()).thenReturn(SECTION_ID);
+        lenient().when(enrollment.getSection()).thenReturn(section);
+        lenient().when(section.getId()).thenReturn(SECTION_ID);
 
-        when(section.getEnrolledCount()).thenReturn(5);
-        when(section.getCourse()).thenReturn(course);
-        when(course.getCredits()).thenReturn(3);
+        lenient().when(section.getEnrolledCount()).thenReturn(5);
+        lenient().when(section.getCourse()).thenReturn(course);
+        lenient().when(course.getCredits()).thenReturn(3);
 
-        when(student.getCurrentCredits()).thenReturn(12);
+        lenient().when(student.getCurrentCredits()).thenReturn(12);
 
-        doNothing().when(enrollmentCartService).processWaitlistForSection(SECTION_ID);
+        lenient().doNothing().when(enrollmentCartService).processWaitlistForSection(SECTION_ID);
 
         enrollmentCartService.dropEnrollment(EMAIL, SECTION_ID);
 
@@ -128,36 +123,36 @@ class US09ADropCourseTest {
         Enrollment otherEnrollment = mock(Enrollment.class);
         Section otherSection = mock(Section.class);
 
-        when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
-        when(student.getId()).thenReturn(STUDENT_ID);
+        lenient().when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
+        lenient().when(student.getId()).thenReturn(STUDENT_ID);
 
-        when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
+        lenient().when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
                 .thenReturn(Optional.of(section));
 
-        when(enrollmentRepository.findByStudentIdAndStatus(STUDENT_ID, EnrollmentStatus.ENROLLED))
+        lenient().when(enrollmentRepository.findByStudentIdAndStatus(STUDENT_ID, EnrollmentStatus.ENROLLED))
                 .thenReturn(List.of(otherEnrollment));
 
-        when(otherEnrollment.getSection()).thenReturn(otherSection);
-        when(otherSection.getId()).thenReturn(999L);
+        lenient().when(otherEnrollment.getSection()).thenReturn(otherSection);
+        lenient().when(otherSection.getId()).thenReturn(999L);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> enrollmentCartService.dropEnrollment(EMAIL, SECTION_ID)
         );
 
-        assertEquals("You are not enrolled in this section.", exception.getMessage());
+        assertEquals("You are not enrolled or waitlisted in this section.", exception.getMessage());
     }
 
     @Test
     void dropEnrollment_doesNotReduceEnrolledCountBelowZero() {
         when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
-        when(student.getId()).thenReturn(STUDENT_ID);
+        lenient().when(student.getId()).thenReturn(STUDENT_ID);
 
         when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
                 .thenReturn(Optional.of(section));
 
-        when(enrollmentRepository.findByStudentIdAndStatus(STUDENT_ID, EnrollmentStatus.ENROLLED))
-                .thenReturn(List.of(enrollment));
+        when(student.getEnrollments()).thenReturn(List.of(enrollment));
+        when(enrollment.getStatus()).thenReturn(EnrollmentStatus.ENROLLED);
 
         when(enrollment.getSection()).thenReturn(section);
         when(section.getId()).thenReturn(SECTION_ID);
@@ -181,13 +176,13 @@ class US09ADropCourseTest {
     @Test
     void dropEnrollment_doesNotReduceCreditsBelowZero() {
         when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(student));
-        when(student.getId()).thenReturn(STUDENT_ID);
+        lenient().when(student.getId()).thenReturn(STUDENT_ID);
 
         when(sectionRepository.findByIdWithPessimisticLock(SECTION_ID))
                 .thenReturn(Optional.of(section));
 
-        when(enrollmentRepository.findByStudentIdAndStatus(STUDENT_ID, EnrollmentStatus.ENROLLED))
-                .thenReturn(List.of(enrollment));
+        when(student.getEnrollments()).thenReturn(List.of(enrollment));
+        when(enrollment.getStatus()).thenReturn(EnrollmentStatus.ENROLLED);
 
         when(enrollment.getSection()).thenReturn(section);
         when(section.getId()).thenReturn(SECTION_ID);
